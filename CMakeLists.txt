@@ -16,6 +16,12 @@ set(Catecophony_jucer_FILE
 
 set(JUCE_MODULES_GLOBAL_PATH "/Users/benhayes/JUCE/modules")
 
+find_library(
+  ESSENTIA
+  NAMES essentia libessentia
+  HINTS "/usr/local/lib"
+)
+
 
 jucer_project_begin(
   JUCER_VERSION "5.4.7"
@@ -31,6 +37,7 @@ jucer_project_settings(
   PROJECT_TYPE "Audio Plug-in"
   BUNDLE_IDENTIFIER "com.yourcompany.Catecophony"
   CXX_LANGUAGE_STANDARD "C++14"
+  HEADER_SEARCH_PATHS "/usr/local/include"
 )
 
 jucer_audio_plugin_settings(
@@ -213,6 +220,7 @@ jucer_project_module(
 
 jucer_export_target(
   "Xcode (MacOSX)"
+  EXTERNAL_LIBRARIES_TO_LINK ${ESSENTIA}
 )
 
 jucer_export_target_configuration(
