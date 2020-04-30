@@ -71,6 +71,16 @@
         "unordered_map": "cpp",
         "unordered_set": "cpp",
         "utility": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "clocale": "cpp",
+        "fstream": "cpp",
+        "numeric": "cpp",
+        "random": "cpp",
+        "shared_mutex": "cpp",
+        "stack": "cpp",
+        "thread": "cpp",
+        "*.tcc": "cpp",
+        "memory_resource": "cpp",
+        "cinttypes": "cpp"
     }
 }
