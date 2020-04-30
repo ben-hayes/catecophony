@@ -70,6 +70,8 @@ private:
     std::unique_ptr<Slider> feature_1_weight;
     std::unique_ptr<Slider> feature_2_weight;
     std::unique_ptr<Slider> feature_3_weight;
+    std::unique_ptr<Slider> dry_wet;
+    std::unique_ptr<Label> label;
 
 
     //==============================================================================
