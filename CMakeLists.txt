@@ -22,6 +22,65 @@ find_library(
   HINTS "/usr/local/lib"
 )
 
+find_library(
+  FFTW3
+  NAMES fftw3 libfftw3
+  HINTS "/usr/local/lib"
+)
+
+find_library(
+  FFTW3F
+  NAMES fftw3f libfftw3f
+  HINTS "/usr/local/lib"
+)
+
+find_library(
+  AVCODEC
+  NAMES avcodec libavcodec
+  HINTS "/usr/local/lib"
+)
+
+find_library(
+  AVFORMAT
+  NAMES avformat libavformat
+  HINTS "/usr/local/lib"
+)
+
+find_library(
+  AVUTIL
+  NAMES avutil libavutil
+  HINTS "/usr/local/lib"
+)
+
+find_library(
+  SAMPLERATE
+  NAMES samplerate libsamplerate
+  HINTS "/usr/local/lib"
+)
+
+find_library(
+  TAG
+  NAMES tag libtag
+  HINTS "/usr/local/lib"
+)
+
+find_library(
+  AVRESAMPLE
+  NAMES avresample libavresample
+  HINTS "/usr/local/lib"
+)
+
+find_library(
+  CHROMAPRINT
+  NAMES chromaprint libchromaprint
+  HINTS "/usr/local/lib"
+)
+
+find_library(
+  YAML
+  NAMES yaml libyaml
+  HINTS "/usr/local/lib"
+)
 
 jucer_project_begin(
   JUCER_VERSION "5.4.7"
@@ -220,7 +279,7 @@ jucer_project_module(
 
 jucer_export_target(
   "Xcode (MacOSX)"
-  EXTERNAL_LIBRARIES_TO_LINK ${ESSENTIA}
+  EXTERNAL_LIBRARIES_TO_LINK ${ESSENTIA} ${FFTW3} ${FFTW3F} ${AVCODEC} ${AVFORMAT} ${AVUTIL} ${SAMPLERATE} ${TAG} ${AVRESAMPLE} ${CHROMAPRINT} ${YAML}
 )
 
 jucer_export_target_configuration(
