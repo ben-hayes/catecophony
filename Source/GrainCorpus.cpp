@@ -25,17 +25,38 @@ GrainCorpus::GrainCorpus(
         for (int i = 0; i < numGrains; i++)
         {
             auto grainStart = hopSize * i;
-            auto* grainBuffer = new AudioBuffer<float>(
+            auto grainBuffer = std::make_unique<AudioBuffer<float>>(
                 reader->numChannels,
                 grainLength);
-            reader->read(grainBuffer, 0, grainLength, grainStart, true, true);
+            reader->read(
+                grainBuffer.get(),
+                0,
+                grainLength,
+                grainStart,
+                true,
+                true);
 
-            grains.add(std::make_unique<Grain>(
-                std::unique_ptr<AudioBuffer<float>>(grainBuffer),
-                window
-            ));
+            grains.add(
+                std::make_unique<Grain>(std::move(grainBuffer), window));
         }
     }
+}
+
+Grain* GrainCorpus::findNearestGrain(Array<float>& featuresToCompare)
+{
+    auto shortestDistance = 0.0f;
+    Grain* nearestGrain;
+
+    for (int i = 0; i < features.size(); i++)
+    {
+        auto distance = L2Distance(features[i], featuresToCompare);
+        if (distance < shortestDistance)
+        {
+            shortestDistance = distance;
+            nearestGrain = grains[i];
+        } 
+    }
+    return nearestGrain;
 }
 
 void GrainCorpus::analyse(
@@ -46,6 +67,15 @@ void GrainCorpus::analyse(
     for (auto& grain : grains)
     {
         features.add(featureExtractors->process(grain));
+    }
+
+    for (auto& f : features)
+    {
+        for (auto& v : f)
+        {
+            std::cout<<v<<", ";
+        }
+        std::cout<<std::endl;
     }
 
     analysed = true;

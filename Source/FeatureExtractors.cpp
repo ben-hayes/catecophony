@@ -7,8 +7,9 @@
 
   ==============================================================================
 */
-
 #include "FeatureExtractors.h"
+
+bool FactoryInitialiser::alreadyInitialised = false;
 
 FeatureExtractorChain::FeatureExtractorChain(size_t grainSize)
     : grainSize(grainSize),
@@ -34,10 +35,17 @@ void FeatureExtractorChain::addFeatureExtractor(
             break;
         }
 
-        case MaxEnergy:
-        break;
+        case MFCC: {
+            auto feature =
+                std::make_unique<MFCCFeatureExtractor>(grainSize);
+            features.add(std::move(feature));
+            break;
+        }
 
         case F0:
+            auto feature =
+                std::make_unique<PitchFeatureExtractor>();
+            features.add(std::move(feature));
         break;
     }
 }
@@ -47,72 +55,151 @@ void FeatureExtractorChain::resetFeatureExtractors()
     features.clear();
 }
 
-Array<float> FeatureExtractorChain::process(std::unique_ptr<Grain>& input)
+std::vector<e::Real> FeatureExtractorChain::process(
+    std::vector<e::Real>& input)
 {
     auto fftComputed = false;
-    Array<float> fftOutput;
-    Array<float> computedFeatures;
+    std::vector<e::Real> magSpectrum;
+    std::vector<e::Real> allFeatures;
 
     for (auto& feature : features)
     {
-        Array<float> computedFeature;
+        std::vector<e::Real> computedFeatures;
         if (feature->requiresFFT())
         {
             if (!fftComputed)
             {
-                fftOutput = fftExtractor.process(input);
+                magSpectrum = fftExtractor.process(input);
             }
-            computedFeature = feature->process(fftOutput);
+            computedFeatures = feature->process(magSpectrum);
         } else
         {
-            computedFeature = feature->process(input);
+            computedFeatures = feature->process(input);
         }
 
-        for (auto& val : computedFeature)
+        for (auto value : computedFeatures)
         {
-            computedFeatures.add(val);
+            allFeatures.push_back(isnan(value) ? 0.0f : value);
         }
     }
 
-    return computedFeatures;
+    return allFeatures;
+}
+
+Array<float> FeatureExtractorChain::process(Grain* input)
+{
+    auto* inputBuffer = input->getRawMonoBuffer();
+    std::vector<e::Real> inputSignal;
+    std::vector<e::Real> computedFeatures;
+    Array<float> outputFeatures;
+
+    for (int n = 0; n < input->getBufferLength(); n++)
+    {
+        inputSignal.push_back(inputBuffer[n]);
+    }
+    
+    computedFeatures = this->process(inputSignal);
+    for (auto value : computedFeatures)
+    {
+        outputFeatures.add(value);
+    }
+
+    return outputFeatures;
+
 }
 
 FFTFeatureExtractor::FFTFeatureExtractor(size_t grainSize)
-    : grainSize(grainSize),
-      fftOrder(int(ceil(log2f(grainSize)))),
-      fftSize(int(powf(2, fftOrder))),
-      fftData(new float[fftSize * 2]),
-      fft(fftOrder)
+    : algorithmFactory(es::AlgorithmFactory::instance())
 {
+    auto fftOrder = (int)ceil(log2f(grainSize));
+    fftSize = (int)powf(2, fftOrder);
+
+    fft.reset(algorithmFactory.create(
+        "Spectrum",
+        "size", fftSize));
 }
 
-Array<float> FFTFeatureExtractor::process(
-    std::unique_ptr<Grain>& input)
+std::vector<e::Real> FFTFeatureExtractor::process(std::vector<e::Real>& input)
 {
-    const float* inputBuffer = input->getRawMonoBuffer();
-    zeromem(fftData, fftSize * 2 * sizeof(float));
-    memcpy(fftData, inputBuffer, grainSize * sizeof(float));
+    std::vector<e::Real> output;
 
-    fft.performFrequencyOnlyForwardTransform(fftData);
+    fft->input("frame").set(input);
+    fft->output("spectrum").set(output);
+    fft->compute();
 
-    Array<float> fftOut;
-    for (int k = 0; k < fftSize / 2 + 1; k++)
-    {
-        fftOut.add(isnan(fftData[k]) ? 0.0f : fftData[k]);
-    }
-
-    return fftOut;
+    return output;
 }
 
-Array<float> SpectralCentroidFeatureExtractor::process(Array<float>& fftInput)
+SpectralCentroidFeatureExtractor::SpectralCentroidFeatureExtractor()
+    : algorithmFactory(es::AlgorithmFactory::instance())
 {
-    auto runningTotal = 0.0f;
-    auto weightingTotal = 0.0f;
-    for (int k = 0; k < fftInput.size(); k++)
+    centroid.reset(algorithmFactory.create("Centroid"));
+}
+
+std::vector<e::Real> SpectralCentroidFeatureExtractor::process(
+    std::vector<e::Real>& fftInput)
+{
+    e::Real centroidValue;
+    std::vector<e::Real> output;
+
+    centroid->input("array").set(fftInput);
+    centroid->output("centroid").set(centroidValue);
+    centroid->compute();
+    output.push_back(centroidValue);
+    return output;
+}
+
+MFCCFeatureExtractor::MFCCFeatureExtractor(size_t grainSize, int numMFCCs)
+    : algorithmFactory(es::AlgorithmFactory::instance())
+{
+    auto fftOrder = (int)ceil(log2f(grainSize));
+    auto fftSize = (int)powf(2, fftOrder);
+    inSize = fftSize / 2 + 1;
+
+    mfcc.reset(algorithmFactory.create(
+        "MFCC",
+        "inputSize", inSize,
+        "numberCoefficients", numMFCCs
+    ));
+}
+
+std::vector<e::Real> MFCCFeatureExtractor::process(
+    std::vector<e::Real>& fftInput)
+{
+    std::vector<e::Real> coeffs;
+    std::vector<e::Real> bands;
+
+    mfcc->input("spectrum").set(fftInput);
+    mfcc->output("mfcc").set(coeffs);
+    mfcc->output("bands").set(bands);
+    mfcc->compute();
+
+    for (auto& coeff : coeffs)
     {
-        runningTotal += k * fftInput[k];
-        weightingTotal += fftInput[k];
+        coeff /= inSize;
     }
-    auto centroid = (runningTotal / weightingTotal) / fftInput.size();
-    return isnan(centroid) ? 0.0f : centroid;
+
+    return coeffs;
+}
+
+PitchFeatureExtractor::PitchFeatureExtractor()
+    : algorithmFactory(es::AlgorithmFactory::instance())
+{
+    yin.reset(algorithmFactory.create(
+        "PitchYin"
+    ));
+}
+
+std::vector<e::Real> PitchFeatureExtractor::process(
+    std::vector<e::Real>& input)
+{
+    e::Real pitch;
+    e::Real confidence;
+    yin->input("signal").set(input);
+    yin->output("pitch").set(pitch);
+    yin->output("pitchConfidence").set(confidence);
+    yin->compute();
+
+    std::vector<e::Real> output{pitch / 22050.0f, confidence};
+    return output;
 }

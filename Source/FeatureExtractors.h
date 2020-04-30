@@ -9,16 +9,35 @@
 */
 
 #pragma once
+#include <exception>
+
+#include <essentia/algorithmfactory.h>
 #include<JuceHeader.h>
 
 #include "Grains.h"
+
+namespace e = essentia;
+namespace es = essentia::standard;
 
 enum Feature
 {
     FFT = 0,
     SpectralCentroid,
-    MaxEnergy,
+    MFCC,
     F0
+};
+
+struct FactoryInitialiser
+{
+    static bool alreadyInitialised;
+    FactoryInitialiser()
+    {
+        if (!alreadyInitialised)
+        {
+            e::init();
+            alreadyInitialised = true;
+        }
+    }
 };
 
 class FeatureExtractor
@@ -26,19 +45,21 @@ class FeatureExtractor
 public:
     virtual ~FeatureExtractor() {};
 
-    virtual Array<float> process(
-        std::unique_ptr<Grain>& input) = 0;
-    virtual Array<float> process(Array<float>& fftInput) { return {}; };
-    virtual bool requiresFFT() = 0;
+    virtual std::vector<e::Real> process(std::vector<e::Real>& input) = 0;
+
+    virtual bool requiresFFT() { return false; };
+
+private:
+    FactoryInitialiser fi;
 };
 
 class FFTBasedFeatureExtractor : public FeatureExtractor
 {
 public:
     virtual ~FFTBasedFeatureExtractor() {};
-    Array<float> process(
-        std::unique_ptr<Grain>& input) override { return {}; };
-    virtual Array<float> process(Array<float>& fftInput) override = 0;
+
+    virtual std::vector<e::Real> process(
+        std::vector<e::Real>& fftInput) override = 0;
 
     bool requiresFFT() override { return true; };
 };
@@ -48,17 +69,14 @@ class FFTFeatureExtractor : public FeatureExtractor
 public:
     FFTFeatureExtractor(size_t grainSize);
 
-    Array<float> process(
-        std::unique_ptr<Grain>& input) override;
+    std::vector<e::Real> process(std::vector<e::Real>& input) override;
     bool requiresFFT() override { return false; };
 
 private:
-    size_t grainSize;
-    size_t fftOrder;
-    size_t fftSize;
-    float* fftData;
+    es::AlgorithmFactory& algorithmFactory;
+    std::unique_ptr<es::Algorithm> fft;
 
-    dsp::FFT fft;
+    int fftSize;
 };
 
 class FeatureExtractorChain : public FeatureExtractor
@@ -69,8 +87,8 @@ public:
     void addFeatureExtractor(Feature feature);
     void resetFeatureExtractors();
 
-    Array<float> process(
-        std::unique_ptr<Grain>& input) override;
+    std::vector<e::Real> process(std::vector<e::Real>& input) override;
+    Array<float> process(Grain* input);
     bool requiresFFT() override { return false; };
 
 private:
@@ -82,5 +100,58 @@ private:
 class SpectralCentroidFeatureExtractor : public FFTBasedFeatureExtractor
 {
 public:
-    Array<float> process(Array<float>& fftInput) override;
+    SpectralCentroidFeatureExtractor();
+
+    std::vector<e::Real> process(std::vector<e::Real>& fftInput) override;
+
+private:
+    es::AlgorithmFactory& algorithmFactory;
+    std::unique_ptr<es::Algorithm> centroid;
 };
+
+class MFCCFeatureExtractor : public FFTBasedFeatureExtractor
+{
+public:
+    MFCCFeatureExtractor(size_t grainSize, int numMFCCs = 3);
+
+    std::vector<e::Real> process(std::vector<e::Real>& fftInput) override;
+
+private:
+    es::AlgorithmFactory& algorithmFactory;
+    std::unique_ptr<es::Algorithm> mfcc;
+
+    int inSize;
+};
+
+class PitchFeatureExtractor : public FeatureExtractor
+{
+public:
+    PitchFeatureExtractor();
+
+    std::vector<e::Real> process(std::vector<e::Real>& input) override;
+
+private:
+    es::AlgorithmFactory& algorithmFactory;
+    std::unique_ptr<es::Algorithm> yin;
+};
+
+class MistmatchingArrayLengthException : public std::exception
+{
+    virtual const char* what() const throw()
+    {
+        return "Input array lengths do not match";
+    }
+} mismatchException;
+
+float L2Distance(Array<float> a, Array<float> b)
+{
+    if (a.size() != b.size()) throw mismatchException;
+
+    auto runningSum = 0.0f;
+    for (int i = 0; i < a.size(); i++)
+    {
+        runningSum += powf(a[i] - b[i], 2.0f);
+    }
+
+    return sqrtf(runningSum);
+}

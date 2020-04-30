@@ -90,6 +90,8 @@ void CatecophonyAudioProcessorEditor::analyseCorpus()
         std::make_unique<FeatureExtractorChain>(corpus->getGrainLength());
     
     featureExtractorChain->addFeatureExtractor(SpectralCentroid);
+    featureExtractorChain->addFeatureExtractor(MFCC);
+    featureExtractorChain->addFeatureExtractor(F0);
 
     corpus->analyse(featureExtractorChain.get());
     processor.setFeatureExtractorChain(std::move(featureExtractorChain));

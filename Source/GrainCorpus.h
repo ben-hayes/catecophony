@@ -24,6 +24,8 @@ public:
         size_t hopSize = 2048);
     ~GrainCorpus() {}
 
+    Grain* findNearestGrain(Array<float>& featuresToCompare);
+
     void analyse(
         FeatureExtractorChain* featureExtractors);
 
@@ -36,7 +38,7 @@ public:
     size_t getGrainLength();
 
 private:
-    Array<std::unique_ptr<Grain>> grains;
+    OwnedArray<Grain> grains;
     Array<Array<float>> features;
 
     size_t grainLength;
