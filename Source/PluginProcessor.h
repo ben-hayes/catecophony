@@ -9,10 +9,19 @@
 */
 
 #pragma once
+#define MAX_BUFFER_SIZE 65356
 
 #include <JuceHeader.h>
 #include "FeatureExtractors.h"
+#include "Grains.h"
 #include "GrainCorpus.h"
+
+enum class ProcessorState
+{
+    NoCorpus = 0,
+    Analysing,
+    Ready
+};
 
 //==============================================================================
 /**
@@ -33,6 +42,7 @@ public:
    #endif
 
     void processBlock (AudioBuffer<float>&, MidiBuffer&) override;
+    void processBlockBypassed (AudioBuffer<float>&, MidiBuffer&) override {}
 
     //==============================================================================
     AudioProcessorEditor* createEditor() override;
@@ -58,6 +68,10 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     //==============================================================================
 
+    void setGrainAndHopSize(size_t grainSize, size_t hopSize);
+
+    ProcessorState getState();
+    void setState(ProcessorState state);
     void setCorpus(std::unique_ptr<GrainCorpus>);
     GrainCorpus* getCorpus();
 
@@ -65,8 +79,28 @@ public:
     FeatureExtractorChain* getFeatureExtractorChain();
 
 private:
+    AudioProcessorValueTreeState params;
+    std::atomic<float>* dryWet;
+    ProcessorState state = ProcessorState::NoCorpus;
+
+    size_t grainSize = 4096;
+    size_t hopSize = 2048;
+    int hopCounter = 0;
+
+    float grainBuffer[2][MAX_BUFFER_SIZE];
+    float** nextGrain;
+    Grain workingGrain;
+
+    float outputBuffer[2][MAX_BUFFER_SIZE];
+    int outputBufferReadPointer = 0;
+    int outputBufferWritePointer = 0;
+
+    int grainBufferWritePointer;
+
     std::unique_ptr<GrainCorpus> corpus;
     std::unique_ptr<FeatureExtractorChain> featureExtractorChain;
+
+    void initialiseBuffers();
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CatecophonyAudioProcessor)
     //==============================================================================

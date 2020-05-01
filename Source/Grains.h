@@ -38,14 +38,22 @@ private:
 class Grain
 {
 public:
+    Grain();
     Grain(
         std::unique_ptr<AudioBuffer<float>> audioBuffer,
+        Window::WindowType windowType = Window::Rectangular);
+    
+    void init(
+        float** data,
+        int numChannels,
+        int lengthInSamples,
         Window::WindowType windowType = Window::Rectangular);
 
     float operator[](size_t i);
     const float operator[](size_t i) const;
 
     const float* getRawMonoBuffer();
+    float** getRawBuffer();
     size_t getBufferLength();
 
 private:

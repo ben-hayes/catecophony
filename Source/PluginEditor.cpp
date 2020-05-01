@@ -15,8 +15,10 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-CatecophonyAudioProcessorEditor::CatecophonyAudioProcessorEditor (CatecophonyAudioProcessor& p)
-    : AudioProcessorEditor (&p), processor (p)
+CatecophonyAudioProcessorEditor::CatecophonyAudioProcessorEditor (
+    CatecophonyAudioProcessor& p,
+    AudioProcessorValueTreeState& v)
+    : AudioProcessorEditor (&p), processor (p), params(v)
 {
     setSize (800, 600);
     setLookAndFeel(&skin);
@@ -28,11 +30,15 @@ CatecophonyAudioProcessorEditor::CatecophonyAudioProcessorEditor (CatecophonyAud
             {},
             {})); 
 
-    gui.reset(new MainGui(std::move(fileFilter)));
+    gui.reset(new MainGui(v, std::move(fileFilter)));
     gui->setBounds(0, 0, 800, 600);
     gui->setFileDropCallback(
         [this](const StringArray& files) {
             loadCorpusFiles(files);
+        });
+    gui->setAnalyseCallback(
+        [this]() {
+            analyseCorpus();
         });
     addAndMakeVisible(gui.get());
 
@@ -77,21 +83,52 @@ void CatecophonyAudioProcessorEditor::loadCorpusFiles(
             audioReaders.add(std::move(reader));
         }
     }
-    auto corpus = std::make_unique<GrainCorpus>(audioReaders);
+
+    auto grainSizeParam = dynamic_cast<AudioParameterInt*>(
+        params.getParameter("grainSize"));
+    auto hopSizeParam = dynamic_cast<AudioParameterInt*>(
+        params.getParameter("hopSize"));
+    
+    // NOTE TO SELF -- left off here... need to pass newg
+    // grain size and hop size to processor
+    auto corpus = std::make_unique<GrainCorpus>(
+        audioReaders,
+        Window::Hann,
+        *grainSizeParam,
+        *hopSizeParam);
+    processor.setGrainAndHopSize(*grainSizeParam, *hopSizeParam);
     processor.setCorpus(std::move(corpus));
+    processor.setState(ProcessorState::Analysing);
 
     analyseCorpus();
+    processor.setState(ProcessorState::Ready);
 }
 
 void CatecophonyAudioProcessorEditor::analyseCorpus()
 {
+    if (processor.getState() == ProcessorState::NoCorpus) return;
+
     auto corpus = processor.getCorpus();
     auto featureExtractorChain =
         std::make_unique<FeatureExtractorChain>(corpus->getGrainLength());
     
-    featureExtractorChain->addFeatureExtractor(SpectralCentroid);
-    featureExtractorChain->addFeatureExtractor(MFCC);
-    featureExtractorChain->addFeatureExtractor(F0);
+    Array<AudioParameterChoice*> featureParams;
+    featureParams.add(dynamic_cast<AudioParameterChoice*>(
+        params.getParameter("feature_1")));
+    featureParams.add(dynamic_cast<AudioParameterChoice*>(
+        params.getParameter("feature_2")));
+    featureParams.add(dynamic_cast<AudioParameterChoice*>(
+        params.getParameter("feature_3")));
+
+    for (auto featureParam : featureParams)
+    {
+        if (featureParam->getCurrentChoiceName() != "None")
+        {
+            auto feature = getExtractorByString(
+                featureParam->getCurrentChoiceName());
+            featureExtractorChain->addFeatureExtractor(feature);
+        }
+    }
 
     corpus->analyse(featureExtractorChain.get());
     processor.setFeatureExtractorChain(std::move(featureExtractorChain));

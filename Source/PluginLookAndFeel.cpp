@@ -11,6 +11,8 @@
 #include "PluginLookAndFeel.h"
 
 PluginLookAndFeel::PluginLookAndFeel()
+    : alphaWhite((0xa0 << 24) | (0xff << 16) | (0xff << 8) | (0xff)),
+      deepBlue((0xff << 24) | (0x21 << 16) | (0x24 << 8) | (0x3d))
 {
     initColours();
 }
@@ -50,10 +52,22 @@ void PluginLookAndFeel::drawComboBox(
     g.fillPath(trianglePath);
 }
 
+void PluginLookAndFeel::drawButtonBackground(
+        Graphics& g,
+        Button& button,
+        const Colour& bgColour,
+        bool shouldDrawButtonAsHighlighted,
+        bool shouldDrawButtonAsDown)
+{
+    auto bounds = button.getLocalBounds().toFloat();
+    g.setColour(alphaWhite);
+
+    g.drawRect(bounds, 1.0f);
+    if (shouldDrawButtonAsDown) g.fillRect(bounds);
+}
+
 void PluginLookAndFeel::initColours()
 {
-    Colour alphaWhite((0xa0 << 24) | (0xff << 16) | (0xff << 8) | (0xff));
-    Colour deepBlue((0xff << 24) | (0x21 << 16) | (0x24 << 8) | (0x3d));
 
     // Window colours
     this->setColour(ResizableWindow::backgroundColourId, deepBlue);

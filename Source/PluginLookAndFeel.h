@@ -27,6 +27,16 @@ public:
         int,
         ComboBox& box) override;
     
+    void drawButtonBackground(
+        Graphics& g,
+        Button& button,
+        const Colour& bgColour,
+        bool shouldDrawButtonAsHighlighted,
+        bool shouldDrawButtonAsDown) override;
+    
 private:
     void initColours();
+
+    Colour alphaWhite;
+    Colour deepBlue;
 };

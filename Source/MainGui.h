@@ -38,27 +38,43 @@
 */
 class MainGui  : public Component,
                  public ComboBox::Listener,
-                 public Slider::Listener
+                 public Slider::Listener,
+                 public Button::Listener
 {
 public:
     //==============================================================================
-    MainGui (std::unique_ptr<WildcardFileFilter> fileFilter);
+    MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileFilter> fileFilter);
     ~MainGui() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
     void setFileDropCallback(std::function<void(const StringArray&)> callback);
+    void setAnalyseCallback(std::function<void()> callback);
     //[/UserMethods]
 
     void paint (Graphics& g) override;
     void resized() override;
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
     void sliderValueChanged (Slider* sliderThatWasMoved) override;
+    void buttonClicked (Button* buttonThatWasClicked) override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment>
+        dryWetAttachment;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment>
+        grainSizeAttachment;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment>
+        hopSizeAttachment;
+    std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment>
+        feature_1Attachment;
+    std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment>
+        feature_2Attachment;
+    std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment>
+        feature_3Attachment;
     //[/UserVariables]
 
     //==============================================================================
@@ -72,6 +88,9 @@ private:
     std::unique_ptr<Slider> feature_3_weight;
     std::unique_ptr<Slider> dry_wet;
     std::unique_ptr<Label> label;
+    std::unique_ptr<TextButton> analyse;
+    std::unique_ptr<Slider> grain_size;
+    std::unique_ptr<Slider> hop_size;
 
 
     //==============================================================================

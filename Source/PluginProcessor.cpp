@@ -13,17 +13,38 @@
 
 //==============================================================================
 CatecophonyAudioProcessor::CatecophonyAudioProcessor()
-#ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
                        .withInput  ("Input",  AudioChannelSet::stereo(), true)
-                      #endif
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
-                     #endif
-                       )
-#endif
+                       ),
+        grainBufferWritePointer(0),
+        outputBufferReadPointer(MAX_BUFFER_SIZE - hopSize),
+        params(*this, nullptr, "Catecophony", {
+                std::make_unique<AudioParameterFloat>(
+                    "drywet", "Dry/Wet",
+                    0.0f, 1.0f, 1.0f),
+                std::make_unique<AudioParameterInt>(
+                    "grainSize", "Grain Size",
+                    5, 13, 11),
+                std::make_unique<AudioParameterInt>(
+                    "hopSize", "Hop Length",
+                    4, 12, 10),
+                std::make_unique<AudioParameterChoice>(
+                    "feature_1", "Feature #1",
+                    StringArray({"Spectral Centroid", "MFCC", "F0"}),
+                    0),
+                std::make_unique<AudioParameterChoice>(
+                    "feature_2", "Feature #2",
+                    StringArray({"None", "Spectral Centroid", "MFCC", "F0"}),
+                    0), 
+                std::make_unique<AudioParameterChoice>(
+                    "feature_3", "Feature #3",
+                    StringArray({"None", "Spectral Centroid", "MFCC", "F0"}),
+                    0)    
+        })
 {
+
+    dryWet = params.getRawParameterValue("drywet");
 }
 
 CatecophonyAudioProcessor::~CatecophonyAudioProcessor()
@@ -95,8 +116,8 @@ void CatecophonyAudioProcessor::changeProgramName (int index, const String& newN
 //==============================================================================
 void CatecophonyAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    setLatencySamples(grainSize);
+    initialiseBuffers();
 }
 
 void CatecophonyAudioProcessor::releaseResources()
@@ -134,27 +155,80 @@ void CatecophonyAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
-
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
+    
+    if (state != ProcessorState::Ready) return;
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    for (int n = 0; n < buffer.getNumSamples(); n++)
     {
-        auto* channelData = buffer.getWritePointer (channel);
+        for (int channel = 0; channel < totalNumInputChannels; channel++)
+        {
+            grainBuffer[channel][grainBufferWritePointer] =
+                buffer.getSample(channel, n);
+        }
 
-        // ..do something to the data...
+        grainBufferWritePointer += 1;
+        if (grainBufferWritePointer >= MAX_BUFFER_SIZE)
+        {
+            grainBufferWritePointer = 0;
+        }
+
+        hopCounter += 1;
+        if (hopCounter >= hopSize)
+        {
+            hopCounter = 0;
+            for (int i = 0; i < grainSize; i++)
+            {
+                for (int c = 0; c < 2; c++)
+                {
+                    nextGrain[c][i] = grainBuffer[c][
+                        (grainBufferWritePointer 
+                        + MAX_BUFFER_SIZE 
+                        - grainSize 
+                        + i) % MAX_BUFFER_SIZE];
+                }
+            }
+
+            workingGrain.init(nextGrain, 2, grainSize, Window::Hann);
+            auto features = featureExtractorChain->process(&workingGrain);
+            auto* nearestGrain = corpus->findNearestGrain(features);
+            auto** rawGrainBuffer = nearestGrain->getRawBuffer();
+
+            for (int i = 0; i < grainSize; i++)
+            {
+                for (int c = 0; c < 2; c++)
+                {
+                    outputBuffer[c][
+                        (outputBufferWritePointer + i) % MAX_BUFFER_SIZE] += 
+                            rawGrainBuffer[c][i];
+                }
+            }
+            outputBufferWritePointer += hopSize;
+            if (outputBufferWritePointer >= MAX_BUFFER_SIZE)
+            {
+                outputBufferWritePointer =
+                    outputBufferWritePointer % MAX_BUFFER_SIZE;
+            }
+        }
+
+        for (int channel = 0; channel < totalNumInputChannels; channel++)
+        {
+            auto inSample = buffer.getSample(channel, n);
+            auto out = *dryWet * outputBuffer[channel][outputBufferReadPointer]
+                + (1.0f - *dryWet) * inSample;
+            buffer.setSample(
+                channel,
+                n,
+                out);
+            outputBuffer[channel][outputBufferReadPointer] = 0.0f;
+        }
+
+        outputBufferReadPointer += 1;
+        if (outputBufferReadPointer >= MAX_BUFFER_SIZE)
+        {
+            outputBufferReadPointer = 0;
+        }
     }
 }
 
@@ -166,7 +240,7 @@ bool CatecophonyAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* CatecophonyAudioProcessor::createEditor()
 {
-    return new CatecophonyAudioProcessorEditor (*this);
+    return new CatecophonyAudioProcessorEditor (*this, params);
 }
 
 //==============================================================================
@@ -183,6 +257,26 @@ void CatecophonyAudioProcessor::setStateInformation (const void* data, int sizeI
     // whose contents will have been created by the getStateInformation() call.
 }
 //==============================================================================
+
+void CatecophonyAudioProcessor::setGrainAndHopSize(
+    size_t grainSize,
+    size_t hopSize)
+{
+    setLatencySamples(grainSize);
+    this->grainSize = grainSize;
+    this->hopSize = hopSize;
+    initialiseBuffers();
+}
+
+ProcessorState CatecophonyAudioProcessor::getState()
+{
+    return state;
+}
+
+void CatecophonyAudioProcessor::setState(ProcessorState state)
+{
+    this->state = state;
+}
 
 void CatecophonyAudioProcessor::setCorpus(std::unique_ptr<GrainCorpus> corpus)
 {
@@ -203,6 +297,15 @@ void CatecophonyAudioProcessor::setFeatureExtractorChain(
 FeatureExtractorChain* CatecophonyAudioProcessor::getFeatureExtractorChain()
 {
     return featureExtractorChain.get();
+}
+
+void CatecophonyAudioProcessor::initialiseBuffers()
+{
+    nextGrain = new float*[2];
+    for (int c = 0; c < 2; c++)
+    {
+        nextGrain[c] = new float[grainSize];
+    }
 }
 
 //==============================================================================

@@ -203,3 +203,29 @@ std::vector<e::Real> PitchFeatureExtractor::process(
     std::vector<e::Real> output{pitch / 22050.0f, confidence};
     return output;
 }
+
+float L2Distance(Array<float> a, Array<float> b)
+{
+    if (a.size() != b.size()) throw new MismatchingArrayLengthException();
+
+    auto runningSum = 0.0f;
+    for (int i = 0; i < a.size(); i++)
+    {
+        runningSum += powf(a[i] - b[i], 2.0f);
+    }
+
+    return sqrtf(runningSum);
+}
+
+Feature getExtractorByString(String extractorName)
+{
+    if (extractorName == "Spectral Centroid")
+        return SpectralCentroid;
+    else if (extractorName == "MFCC")
+        return MFCC;
+    else if (extractorName == "F0")
+        return F0;
+    else
+        return SpectralCentroid;
+        // throw new UnknownExtractorException();
+}

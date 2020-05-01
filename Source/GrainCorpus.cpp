@@ -44,7 +44,7 @@ GrainCorpus::GrainCorpus(
 
 Grain* GrainCorpus::findNearestGrain(Array<float>& featuresToCompare)
 {
-    auto shortestDistance = 0.0f;
+    auto shortestDistance = 1000.0f;
     Grain* nearestGrain;
 
     for (int i = 0; i < features.size(); i++)

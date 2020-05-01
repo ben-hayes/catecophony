@@ -89,11 +89,29 @@ const float Window::operator[](size_t i) const
     return buffer.getSample(0, i);
 }
 
+Grain::Grain()
+    : buffer(std::make_unique<AudioBuffer<float>>()),
+      monoBuffer(std::make_unique<AudioBuffer<float>>())
+{
+}
+
 Grain::Grain(
     std::unique_ptr<AudioBuffer<float>> audioBuffer,
     Window::WindowType windowType)
-    : buffer(std::move(audioBuffer))
+    : buffer(std::move(audioBuffer)),
+      monoBuffer(std::make_unique<AudioBuffer<float>>())
 {
+    applyWindow(windowType);
+    makeMonoBuffer();
+}
+
+void Grain::init(
+    float** data,
+    int numChannels,
+    int lengthInSamples,
+    Window::WindowType windowType)
+{
+    buffer->setDataToReferTo(data, numChannels, lengthInSamples);
     applyWindow(windowType);
     makeMonoBuffer();
 }
@@ -113,6 +131,11 @@ const float* Grain::getRawMonoBuffer()
     return monoBuffer->getReadPointer(0);
 }
 
+float** Grain::getRawBuffer()
+{
+    return buffer->getArrayOfWritePointers();
+}
+
 size_t Grain::getBufferLength()
 {
     return buffer->getNumSamples();
@@ -130,7 +153,9 @@ void Grain::applyWindow(Window::WindowType windowType)
 
 void Grain::makeMonoBuffer()
 {
-    monoBuffer.reset(new AudioBuffer<float>(1, buffer->getNumSamples()));
+    monoBuffer->setSize(1, buffer->getNumSamples());
+    monoBuffer->clear();
+
     for (int channel = 0; channel < buffer->getNumChannels(); channel++)
     {
         monoBuffer->addFrom(0, 0, *buffer, channel, 0, buffer->getNumSamples());

@@ -22,7 +22,9 @@
 class CatecophonyAudioProcessorEditor  : public AudioProcessorEditor
 {
 public:
-    CatecophonyAudioProcessorEditor (CatecophonyAudioProcessor&);
+    CatecophonyAudioProcessorEditor (
+      CatecophonyAudioProcessor&,
+      AudioProcessorValueTreeState&);
     ~CatecophonyAudioProcessorEditor();
 
     //==============================================================================
@@ -33,6 +35,7 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     CatecophonyAudioProcessor& processor;
+    AudioProcessorValueTreeState& params;
 
     std::unique_ptr<MainGui> gui;
     PluginLookAndFeel skin;

@@ -135,23 +135,22 @@ private:
     std::unique_ptr<es::Algorithm> yin;
 };
 
-class MistmatchingArrayLengthException : public std::exception
+class MismatchingArrayLengthException : public std::exception
 {
     virtual const char* what() const throw()
     {
         return "Input array lengths do not match";
     }
-} mismatchException;
+};
 
-float L2Distance(Array<float> a, Array<float> b)
+float L2Distance(Array<float> a, Array<float> b);
+
+class UnknownExtractorException : public std::exception
 {
-    if (a.size() != b.size()) throw mismatchException;
-
-    auto runningSum = 0.0f;
-    for (int i = 0; i < a.size(); i++)
+    virtual const char* what() const throw()
     {
-        runningSum += powf(a[i] - b[i], 2.0f);
+        return "Unknown extractor string given";
     }
+};
 
-    return sqrtf(runningSum);
-}
+Feature getExtractorByString(String extractorName);
