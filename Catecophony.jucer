@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="GlT8KT" name="Catecophony" projectType="audioplug" jucerVersion="5.4.7">
+<JUCERPROJECT id="GlT8KT" name="Catecophony" projectType="audioplug" jucerVersion="5.4.4">
   <MAINGROUP id="seWisY" name="Catecophony">
     <GROUP id="{58E357FA-602D-3C9B-78F5-7AD47BAA0F5C}" name="Source">
       <FILE id="rV8mG3" name="FeatureExtractors.cpp" compile="1" resource="0"

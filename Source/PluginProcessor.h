@@ -19,8 +19,15 @@
 enum class ProcessorState
 {
     NoCorpus = 0,
+    LoadingFiles,
     Analysing,
     Ready
+};
+
+enum class BufferState
+{
+    NotInUse = 0,
+    InUse
 };
 
 //==============================================================================
@@ -71,6 +78,8 @@ public:
     void setGrainAndHopSize(size_t grainSize, size_t hopSize);
 
     ProcessorState getState();
+    BufferState getBufferState();
+
     void setState(ProcessorState state);
     void setCorpus(std::unique_ptr<GrainCorpus>);
     GrainCorpus* getCorpus();
@@ -82,6 +91,7 @@ private:
     AudioProcessorValueTreeState params;
     std::atomic<float>* dryWet;
     ProcessorState state = ProcessorState::NoCorpus;
+    BufferState bufState = BufferState::NotInUse;
 
     size_t grainSize = 4096;
     size_t hopSize = 2048;

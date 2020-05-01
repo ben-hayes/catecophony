@@ -25,22 +25,78 @@ CatecophonyAudioProcessor::CatecophonyAudioProcessor()
                     0.0f, 1.0f, 1.0f),
                 std::make_unique<AudioParameterInt>(
                     "grainSize", "Grain Size",
-                    5, 13, 11),
+                    5, 13, 11, String(),
+                    [](double val, int) {
+                        return String((int)powf(2.0f, val + 1));
+                    }),
                 std::make_unique<AudioParameterInt>(
                     "hopSize", "Hop Length",
-                    4, 12, 10),
+                    4, 12, 10, String(),
+                    [](double val, int) {
+                        return String((int)powf(2.0f, val + 1));
+                    }),
                 std::make_unique<AudioParameterChoice>(
                     "feature_1", "Feature #1",
-                    StringArray({"Spectral Centroid", "MFCC", "F0"}),
-                    0),
+                    StringArray({
+                        "Dissonance",
+                        "F0",
+                        "Inharmonicity",
+                        "MFCC",
+                        "Odd:even Harmonic Ratio",
+                        "Pitch Salience",
+                        "RMS",
+                        "Spectral Centroid",
+                        "Spectral Complexity",
+                        "Spectral Contrast",
+                        "Spectral Flatness",
+                        "Spectral Peaks",
+                        "Spectral Roll-off",
+                        "Strong Peak Ratio",
+                        "Zero Crossing Rate"
+                    }),
+                    7),
                 std::make_unique<AudioParameterChoice>(
                     "feature_2", "Feature #2",
-                    StringArray({"None", "Spectral Centroid", "MFCC", "F0"}),
-                    0), 
+                    StringArray({
+                        "None",
+                        "Dissonance",
+                        "F0",
+                        "Inharmonicity",
+                        "MFCC",
+                        "Odd:even Harmonic Ratio",
+                        "Pitch Salience",
+                        "RMS",
+                        "Spectral Centroid",
+                        "Spectral Complexity",
+                        "Spectral Contrast",
+                        "Spectral Flatness",
+                        "Spectral Peaks",
+                        "Spectral Roll-off",
+                        "Strong Peak Ratio",
+                        "Zero Crossing Rate"
+                    }),
+                    4), 
                 std::make_unique<AudioParameterChoice>(
                     "feature_3", "Feature #3",
-                    StringArray({"None", "Spectral Centroid", "MFCC", "F0"}),
-                    0)    
+                    StringArray({
+                        "None",
+                        "Dissonance",
+                        "F0",
+                        "Inharmonicity",
+                        "MFCC",
+                        "Odd:even Harmonic Ratio",
+                        "Pitch Salience",
+                        "RMS",
+                        "Spectral Centroid",
+                        "Spectral Complexity",
+                        "Spectral Contrast",
+                        "Spectral Flatness",
+                        "Spectral Peaks",
+                        "Spectral Roll-off",
+                        "Strong Peak Ratio",
+                        "Zero Crossing Rate"
+                    }),
+                    11)    
         })
 {
 
@@ -160,6 +216,7 @@ void CatecophonyAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     
     if (state != ProcessorState::Ready) return;
 
+    bufState = BufferState::InUse;
     for (int n = 0; n < buffer.getNumSamples(); n++)
     {
         for (int channel = 0; channel < totalNumInputChannels; channel++)
@@ -230,6 +287,7 @@ void CatecophonyAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
             outputBufferReadPointer = 0;
         }
     }
+    bufState = BufferState::NotInUse;
 }
 
 //==============================================================================
@@ -262,6 +320,8 @@ void CatecophonyAudioProcessor::setGrainAndHopSize(
     size_t grainSize,
     size_t hopSize)
 {
+    std::cout<<"Grain: "<<grainSize<<std::endl;
+    std::cout<<"Hop: "<<hopSize<<std::endl;
     setLatencySamples(grainSize);
     this->grainSize = grainSize;
     this->hopSize = hopSize;
@@ -271,6 +331,11 @@ void CatecophonyAudioProcessor::setGrainAndHopSize(
 ProcessorState CatecophonyAudioProcessor::getState()
 {
     return state;
+}
+
+BufferState CatecophonyAudioProcessor::getBufferState()
+{
+    return bufState;
 }
 
 void CatecophonyAudioProcessor::setState(ProcessorState state)

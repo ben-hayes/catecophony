@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.7
+  Created with Projucer version: 5.4.4
 
   ------------------------------------------------------------------------------
 
@@ -51,9 +51,21 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
     feature_3->setTextWhenNothingSelected (String());
     feature_3->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     feature_3->addItem (TRANS("None"), 1);
-    feature_3->addItem (TRANS("Spectral Centroid"), 2);
-    feature_3->addItem (TRANS("MFCC"), 3);
-    feature_3->addItem (TRANS("F0"), 4);
+    feature_3->addItem (TRANS("Dissonance"), 2);
+    feature_3->addItem (TRANS("F0"), 3);
+    feature_3->addItem (TRANS("Inharmonicity"), 4);
+    feature_3->addItem (TRANS("MFCC"), 5);
+    feature_3->addItem (TRANS("Odd:even Harmonic Ratio"), 6);
+    feature_3->addItem (TRANS("Pitch Salience"), 7);
+    feature_3->addItem (TRANS("RMS"), 8);
+    feature_3->addItem (TRANS("Spectral Centroid"), 9);
+    feature_3->addItem (TRANS("Spectral Complexity"), 10);
+    feature_3->addItem (TRANS("Spectral Contrast"), 11);
+    feature_3->addItem (TRANS("Spectral Flatness"), 12);
+    feature_3->addItem (TRANS("Spectral Peaks"), 13);
+    feature_3->addItem (TRANS("Spectral Roll-off"), 14);
+    feature_3->addItem (TRANS("Strong Peak Ratio"), 15);
+    feature_3->addItem (TRANS("Zero Crossing Rate"), 16);
     feature_3->addListener (this);
 
     feature_3->setBounds (8, 236, 208, 16);
@@ -65,9 +77,21 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
     feature_2->setTextWhenNothingSelected (String());
     feature_2->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     feature_2->addItem (TRANS("None"), 1);
-    feature_2->addItem (TRANS("Spectral Centroid"), 2);
-    feature_2->addItem (TRANS("MFCC"), 3);
-    feature_2->addItem (TRANS("F0"), 4);
+    feature_2->addItem (TRANS("Dissonance"), 2);
+    feature_2->addItem (TRANS("F0"), 3);
+    feature_2->addItem (TRANS("Inharmonicity"), 4);
+    feature_2->addItem (TRANS("MFCC"), 5);
+    feature_2->addItem (TRANS("Odd:even Harmonic Ratio"), 6);
+    feature_2->addItem (TRANS("Pitch Salience"), 7);
+    feature_2->addItem (TRANS("RMS"), 8);
+    feature_2->addItem (TRANS("Spectral Centroid"), 9);
+    feature_2->addItem (TRANS("Spectral Complexity"), 10);
+    feature_2->addItem (TRANS("Spectral Contrast"), 11);
+    feature_2->addItem (TRANS("Spectral Flatness"), 12);
+    feature_2->addItem (TRANS("Spectral Peaks"), 13);
+    feature_2->addItem (TRANS("Spectral Roll-off"), 14);
+    feature_2->addItem (TRANS("Strong Peak Ratio"), 15);
+    feature_2->addItem (TRANS("Zero Crossing Rate"), 16);
     feature_2->addListener (this);
 
     feature_2->setBounds (8, 212, 208, 16);
@@ -78,9 +102,21 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
     feature_1->setJustificationType (Justification::centredLeft);
     feature_1->setTextWhenNothingSelected (String());
     feature_1->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    feature_1->addItem (TRANS("Spectral Centroid"), 1);
-    feature_1->addItem (TRANS("MFCC"), 2);
-    feature_1->addItem (TRANS("F0"), 3);
+    feature_1->addItem (TRANS("Dissonance"), 1);
+    feature_1->addItem (TRANS("F0"), 2);
+    feature_1->addItem (TRANS("Inharmonicity"), 3);
+    feature_1->addItem (TRANS("MFCC"), 4);
+    feature_1->addItem (TRANS("Odd:even Harmonic Ratio"), 5);
+    feature_1->addItem (TRANS("Pitch Salience"), 6);
+    feature_1->addItem (TRANS("RMS"), 7);
+    feature_1->addItem (TRANS("Spectral Centroid"), 8);
+    feature_1->addItem (TRANS("Spectral Complexity"), 9);
+    feature_1->addItem (TRANS("Spectral Contrast"), 10);
+    feature_1->addItem (TRANS("Spectral Flatness"), 11);
+    feature_1->addItem (TRANS("Spectral Peaks"), 12);
+    feature_1->addItem (TRANS("Spectral Roll-off"), 13);
+    feature_1->addItem (TRANS("Strong Peak Ratio"), 14);
+    feature_1->addItem (TRANS("Zero Crossing Rate"), 15);
     feature_1->addListener (this);
 
     feature_1->setBounds (8, 188, 208, 16);
@@ -534,16 +570,16 @@ BEGIN_JUCER_METADATA
                     params="std::move(fileFilter)"/>
   <COMBOBOX name="Feature #3" id="7795db765f687142" memberName="feature_3"
             virtualName="" explicitFocusOrder="0" pos="8 236 208 16" editable="0"
-            layout="33" items="None&#10;Spectral Centroid&#10;MFCC&#10;F0"
+            layout="33" items="None&#10;Dissonance&#10;F0&#10;Inharmonicity&#10;MFCC&#10;Odd:even Harmonic Ratio&#10;Pitch Salience&#10;RMS&#10;Spectral Centroid&#10;Spectral Complexity&#10;Spectral Contrast&#10;Spectral Flatness&#10;Spectral Peaks&#10;Spectral Roll-off&#10;Strong Peak Ratio&#10;Zero Crossing Rate"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <COMBOBOX name="Feature #2" id="fb32e96538878318" memberName="feature_2"
             virtualName="" explicitFocusOrder="0" pos="8 212 208 16" editable="0"
-            layout="33" items="None&#10;Spectral Centroid&#10;MFCC&#10;F0"
+            layout="33" items="None&#10;Dissonance&#10;F0&#10;Inharmonicity&#10;MFCC&#10;Odd:even Harmonic Ratio&#10;Pitch Salience&#10;RMS&#10;Spectral Centroid&#10;Spectral Complexity&#10;Spectral Contrast&#10;Spectral Flatness&#10;Spectral Peaks&#10;Spectral Roll-off&#10;Strong Peak Ratio&#10;Zero Crossing Rate"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <COMBOBOX name="Feature #1" id="a431f809fa16057a" memberName="feature_1"
             virtualName="" explicitFocusOrder="0" pos="8 188 208 16" editable="0"
-            layout="33" items="Spectral Centroid&#10;MFCC&#10;F0" textWhenNonSelected=""
-            textWhenNoItems="(no choices)"/>
+            layout="33" items="Dissonance&#10;F0&#10;Inharmonicity&#10;MFCC&#10;Odd:even Harmonic Ratio&#10;Pitch Salience&#10;RMS&#10;Spectral Centroid&#10;Spectral Complexity&#10;Spectral Contrast&#10;Spectral Flatness&#10;Spectral Peaks&#10;Spectral Roll-off&#10;Strong Peak Ratio&#10;Zero Crossing Rate"
+            textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <SLIDER name="Feature #1 Weighting" id="189aadb79034379f" memberName="feature_1_weight"
           virtualName="" explicitFocusOrder="0" pos="224 188 64 16" textboxoutline="a0ffffff"
           min="0.0" max="1.0" int="0.01" style="LinearBar" textBoxPos="TextBoxLeft"

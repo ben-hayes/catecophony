@@ -44,17 +44,18 @@ GrainCorpus::GrainCorpus(
 
 Grain* GrainCorpus::findNearestGrain(Array<float>& featuresToCompare)
 {
-    auto shortestDistance = 1000.0f;
+    auto shortestDistance = 0.0f;
     Grain* nearestGrain;
 
     for (int i = 0; i < features.size(); i++)
     {
         auto distance = L2Distance(features[i], featuresToCompare);
-        if (distance < shortestDistance)
+        if (distance < shortestDistance || i == 0)
         {
             shortestDistance = distance;
             nearestGrain = grains[i];
-        } 
+        }
+        
     }
     return nearestGrain;
 }
@@ -62,7 +63,7 @@ Grain* GrainCorpus::findNearestGrain(Array<float>& featuresToCompare)
 void GrainCorpus::analyse(
     FeatureExtractorChain* featureExtractors)
 {
-    if (analysed) features.clear();
+    features.clear();
 
     for (auto& grain : grains)
     {

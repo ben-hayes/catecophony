@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.7
+  Created with Projucer version: 5.4.4
 
   ------------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ class MainGui  : public Component,
 public:
     //==============================================================================
     MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileFilter> fileFilter);
-    ~MainGui() override;
+    ~MainGui();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.

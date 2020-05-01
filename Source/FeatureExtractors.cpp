@@ -42,11 +42,68 @@ void FeatureExtractorChain::addFeatureExtractor(
             break;
         }
 
-        case F0:
+        case F0: {
             auto feature =
                 std::make_unique<PitchFeatureExtractor>();
             features.add(std::move(feature));
-        break;
+            break;
+        }
+
+        case SpectralFlatness: {
+            auto feature =
+                std::make_unique<SpectralFlatnessFeatureExtractor>();
+            features.add(std::move(feature));
+            break;
+        }
+
+        case SpectralComplexity: {
+            auto feature =
+                std::make_unique<SpectralComplexityFeatureExtractor>();
+            features.add(std::move(feature));
+            break;
+        }
+
+        case SpectralRollOff: {
+            auto feature =
+                std::make_unique<SpectralRollOffFeatureExtractor>();
+            features.add(std::move(feature));
+            break;
+        }
+
+        case SpectralContrast: {
+            auto feature =
+                std::make_unique<SpectralContrastFeatureExtractor>();
+            features.add(std::move(feature));
+            break;
+        }
+
+        case SpectralPeaks: {
+            auto feature =
+                std::make_unique<SpectralPeaksFeatureExtractor>();
+            features.add(std::move(feature));
+            break;
+        }
+
+        case StrongPeak: {
+            auto feature =
+                std::make_unique<StrongPeakFeatureExtractor>();
+            features.add(std::move(feature));
+            break;
+        }
+
+        case ZeroCrossingRate: {
+            auto feature =
+                std::make_unique<ZeroCrossingFeatureExtractor>();
+            features.add(std::move(feature));
+            break;
+        }
+
+        case RMS: {
+            auto feature =
+                std::make_unique<RMSFeatureExtractor>();
+            features.add(std::move(feature));
+            break;
+        }
     }
 }
 
@@ -204,6 +261,180 @@ std::vector<e::Real> PitchFeatureExtractor::process(
     return output;
 }
 
+SpectralFlatnessFeatureExtractor::SpectralFlatnessFeatureExtractor()
+    : algorithmFactory(es::AlgorithmFactory::instance())
+{
+    flatness.reset(algorithmFactory.create(
+        "Flatness"
+    ));
+}
+
+std::vector<e::Real> SpectralFlatnessFeatureExtractor::process(
+    std::vector<e::Real>& fftInput)
+{
+    e::Real output;
+    flatness->input("array").set(fftInput);
+    flatness->output("flatness").set(output);
+    flatness->compute();
+
+    return std::vector<e::Real>{output};
+}
+
+SpectralComplexityFeatureExtractor::SpectralComplexityFeatureExtractor()
+    : algorithmFactory(es::AlgorithmFactory::instance())
+{
+    complexity.reset(algorithmFactory.create(
+        "SpectralComplexity"
+    ));
+}
+
+std::vector<e::Real> SpectralComplexityFeatureExtractor::process(
+    std::vector<e::Real>& fftInput)
+{
+    e::Real output;
+    complexity->input("spectrum").set(fftInput);
+    complexity->output("spectralComplexity").set(output);
+    complexity->compute();
+
+    return std::vector<e::Real>{output / (float)(fftInput.size())};
+}
+
+SpectralRollOffFeatureExtractor::SpectralRollOffFeatureExtractor()
+    : algorithmFactory(es::AlgorithmFactory::instance())
+{
+    rollOff.reset(algorithmFactory.create(
+        "RollOff"
+    ));
+}
+
+std::vector<e::Real> SpectralRollOffFeatureExtractor::process(
+    std::vector<e::Real>& fftInput)
+{
+    e::Real output;
+    rollOff->input("spectrum").set(fftInput);
+    rollOff->output("rollOff").set(output);
+    rollOff->compute();
+
+    return std::vector<e::Real>{output / 22050.0f};
+}
+
+SpectralContrastFeatureExtractor::SpectralContrastFeatureExtractor()
+    : algorithmFactory(es::AlgorithmFactory::instance())
+{
+    contrast.reset(algorithmFactory.create(
+        "SpectralContrast",
+        "numberBands", 4
+    ));
+}
+
+std::vector<e::Real> SpectralContrastFeatureExtractor::process(
+    std::vector<e::Real>& fftInput)
+{
+    std::vector<e::Real> spectralContrast;
+    std::vector<e::Real> spectralValley;
+    contrast->input("spectrum").set(fftInput);
+    contrast->output("spectralContrast").set(spectralContrast);
+    contrast->output("spectralValley").set(spectralValley);
+    contrast->compute();
+
+    return spectralContrast;
+}
+
+SpectralPeaksFeatureExtractor::SpectralPeaksFeatureExtractor()
+    : algorithmFactory(es::AlgorithmFactory::instance())
+{
+    peaks.reset(algorithmFactory.create(
+        "SpectralPeaks",
+        "maxPeaks", numPeaks,
+        "orderBy", "magnitude"
+    ));
+}
+
+std::vector<e::Real> SpectralPeaksFeatureExtractor::process(
+    std::vector<e::Real>& fftInput)
+{
+    auto sum = 0.0f;
+    for (auto& val : fftInput) sum += val;
+    if (sum <= 0.0001)
+    {
+        std::cout<<"Nothing!"<<std::endl;
+    }
+    std::vector<e::Real> freqs;
+    std::vector<e::Real> mags;
+    peaks->input("spectrum").set(fftInput);
+    peaks->output("frequencies").set(freqs);
+    peaks->output("magnitudes").set(mags);
+    peaks->compute();
+
+    std::vector<e::Real> out;
+    for (auto& val : freqs)
+    {
+        out.push_back(val / 22050.0f);
+    }
+    for (int i = 0; i < numPeaks - freqs.size(); i++)
+    {
+        out.push_back(0.0f);
+    }
+
+    return out;
+}
+
+StrongPeakFeatureExtractor::StrongPeakFeatureExtractor()
+    : algorithmFactory(es::AlgorithmFactory::instance())
+{
+    strongPeak.reset(algorithmFactory.create(
+        "StrongPeak"
+    ));
+}
+
+std::vector<e::Real> StrongPeakFeatureExtractor::process(
+    std::vector<e::Real>& fftInput)
+{
+    e::Real strongPeakValue;
+    strongPeak->input("spectrum").set(fftInput);
+    strongPeak->output("strongPeak").set(strongPeakValue);
+    strongPeak->compute();
+
+    return std::vector<e::Real>{strongPeakValue};
+}
+
+ZeroCrossingFeatureExtractor::ZeroCrossingFeatureExtractor()
+    : algorithmFactory(es::AlgorithmFactory::instance())
+{
+    zeroCrossing.reset(algorithmFactory.create(
+        "ZeroCrossingRate"
+    ));
+}
+
+std::vector<e::Real> ZeroCrossingFeatureExtractor::process(
+    std::vector<e::Real>& input)
+{
+    e::Real zeroCrossingRate;
+    zeroCrossing->input("signal").set(input);
+    zeroCrossing->output("zeroCrossingRate").set(zeroCrossingRate);
+    zeroCrossing->compute();
+
+    return std::vector<e::Real>{zeroCrossingRate};
+}
+
+RMSFeatureExtractor::RMSFeatureExtractor()
+    : algorithmFactory(es::AlgorithmFactory::instance())
+{
+    rms.reset(algorithmFactory.create(
+        "RMS"
+    ));
+}
+
+std::vector<e::Real> RMSFeatureExtractor::process(std::vector<e::Real>& input)
+{
+    e::Real rmsVal;
+    rms->input("array").set(input);
+    rms->output("rms").set(rmsVal);
+    rms->compute();
+
+    return std::vector<e::Real>{rmsVal};
+}
+
 float L2Distance(Array<float> a, Array<float> b)
 {
     if (a.size() != b.size()) throw new MismatchingArrayLengthException();
@@ -225,7 +456,22 @@ Feature getExtractorByString(String extractorName)
         return MFCC;
     else if (extractorName == "F0")
         return F0;
+    else if (extractorName == "Spectral Flatness")
+        return SpectralFlatness;
+    else if (extractorName == "Spectral Complexity")
+        return SpectralComplexity;
+    else if (extractorName == "Spectral Roll-off")
+        return SpectralRollOff;
+    else if (extractorName == "Spectral Contrast")
+        return SpectralContrast;
+    else if (extractorName == "Spectral Peaks")
+        return SpectralPeaks;
+    else if (extractorName == "Strong Peak Ratio")
+        return StrongPeak;
+    else if (extractorName == "Zero Crossing Rate")
+        return ZeroCrossingRate;
+    else if (extractorName == "RMS")
+        return RMS;
     else
-        return SpectralCentroid;
-        // throw new UnknownExtractorException();
+        throw new UnknownExtractorException();
 }

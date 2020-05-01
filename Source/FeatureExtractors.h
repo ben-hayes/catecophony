@@ -24,7 +24,16 @@ enum Feature
     FFT = 0,
     SpectralCentroid,
     MFCC,
-    F0
+    F0,
+    SpectralFlatness,
+    SpectralComplexity,
+    SpectralRollOff,
+    SpectralContrast,
+    SpectralPeaks,
+    StrongPeak,
+    ZeroCrossingRate,
+    MaxMagFreq,
+    RMS
 };
 
 struct FactoryInitialiser
@@ -112,7 +121,7 @@ private:
 class MFCCFeatureExtractor : public FFTBasedFeatureExtractor
 {
 public:
-    MFCCFeatureExtractor(size_t grainSize, int numMFCCs = 3);
+    MFCCFeatureExtractor(size_t grainSize, int numMFCCs = 6);
 
     std::vector<e::Real> process(std::vector<e::Real>& fftInput) override;
 
@@ -133,6 +142,96 @@ public:
 private:
     es::AlgorithmFactory& algorithmFactory;
     std::unique_ptr<es::Algorithm> yin;
+};
+
+class SpectralFlatnessFeatureExtractor : public FFTBasedFeatureExtractor
+{
+public:
+    SpectralFlatnessFeatureExtractor();
+    std::vector<e::Real> process(std::vector<e::Real>& fftInput) override;
+
+private:
+    es::AlgorithmFactory& algorithmFactory;
+    std::unique_ptr<es::Algorithm> flatness;
+};
+
+class SpectralComplexityFeatureExtractor : public FFTBasedFeatureExtractor
+{
+public:
+    SpectralComplexityFeatureExtractor();
+    std::vector<e::Real> process(std::vector<e::Real>& fftInput) override;
+
+private:
+    es::AlgorithmFactory& algorithmFactory;
+    std::unique_ptr<es::Algorithm> complexity;
+};
+
+class SpectralRollOffFeatureExtractor : public FFTBasedFeatureExtractor
+{
+public:
+    SpectralRollOffFeatureExtractor();
+    std::vector<e::Real> process(std::vector<e::Real>& fftInput) override;
+
+private:
+    es::AlgorithmFactory& algorithmFactory;
+    std::unique_ptr<es::Algorithm> rollOff;
+};
+
+class SpectralContrastFeatureExtractor : public FFTBasedFeatureExtractor
+{
+public:
+    SpectralContrastFeatureExtractor();
+    std::vector<e::Real> process(std::vector<e::Real>& fftInput) override;
+
+private:
+    es::AlgorithmFactory& algorithmFactory;
+    std::unique_ptr<es::Algorithm> contrast;
+};
+
+class SpectralPeaksFeatureExtractor : public FFTBasedFeatureExtractor
+{
+public:
+    SpectralPeaksFeatureExtractor();
+    std::vector<e::Real> process(std::vector<e::Real>& fftInput) override;
+
+private:
+    int numPeaks = 4;
+
+    es::AlgorithmFactory& algorithmFactory;
+    std::unique_ptr<es::Algorithm> peaks;
+};
+
+class StrongPeakFeatureExtractor : public FFTBasedFeatureExtractor
+{
+public:
+    StrongPeakFeatureExtractor();
+    std::vector<e::Real> process(std::vector<e::Real>& fftInput) override;
+
+private:
+    es::AlgorithmFactory& algorithmFactory;
+    std::unique_ptr<es::Algorithm> strongPeak;
+};
+
+class ZeroCrossingFeatureExtractor : public FeatureExtractor
+{
+public:
+    ZeroCrossingFeatureExtractor();
+    std::vector<e::Real> process(std::vector<e::Real>& input) override;
+
+private:
+    es::AlgorithmFactory& algorithmFactory;
+    std::unique_ptr<es::Algorithm> zeroCrossing;
+};
+
+class RMSFeatureExtractor : public FeatureExtractor
+{
+public:
+    RMSFeatureExtractor();
+    std::vector<e::Real> process(std::vector<e::Real>& input) override;
+
+private:
+    es::AlgorithmFactory& algorithmFactory;
+    std::unique_ptr<es::Algorithm> rms;
 };
 
 class MismatchingArrayLengthException : public std::exception

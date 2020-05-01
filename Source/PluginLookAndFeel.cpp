@@ -15,6 +15,7 @@ PluginLookAndFeel::PluginLookAndFeel()
       deepBlue((0xff << 24) | (0x21 << 16) | (0x24 << 8) | (0x3d))
 {
     initColours();
+    setDefaultSansSerifTypefaceName("Futura Medium");
 }
 
 void PluginLookAndFeel::drawComboBox(
