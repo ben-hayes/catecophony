@@ -126,6 +126,8 @@ jucer_audio_plugin_settings(
 jucer_project_files("Catecophony/Source"
 # Compile   Xcode     Binary    File
 #           Resource  Resource
+  x         .         .         "Source/AnalysisWorker.cpp"
+  .         .         .         "Source/AnalysisWorker.h"
   x         .         .         "Source/FeatureExtractors.cpp"
   .         .         .         "Source/FeatureExtractors.h"
   x         .         .         "Source/Grains.cpp"
