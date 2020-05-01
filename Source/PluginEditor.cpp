@@ -34,7 +34,7 @@ CatecophonyAudioProcessorEditor::CatecophonyAudioProcessorEditor (
     gui->setBounds(0, 0, 800, 600);
     gui->setFileDropCallback(
         [this](const StringArray& files) {
-            loadCorpusFiles(files);
+            initialiseCorpusFromFilenames(files);
         });
     gui->setAnalyseCallback(
         [this]() {
@@ -68,58 +68,40 @@ void CatecophonyAudioProcessorEditor::resized()
     // subcomponents in your editor..
 }
 
-void CatecophonyAudioProcessorEditor::loadCorpusFiles(
+void CatecophonyAudioProcessorEditor::initialiseCorpusFromFilenames(
     const StringArray& files)
 {
-    processor.setState(ProcessorState::LoadingFiles);
-    Array<std::unique_ptr<AudioFormatReader>> audioReaders; 
+    auto grainSize = getSelectedGrainSize();
+    auto hopSize = getSelectedHopSize();
+    auto features = getSelectedFeatures();
 
-    for (auto file : files)
-    {
-        std::unique_ptr<AudioFormatReader> reader (
-            formatManager.createReaderFor(file));
-        
-        if (reader)
-        {
-            audioReaders.add(std::move(reader));
-        }
-    }
-
-    // Wait for buffers to be free
-    while (processor.getBufferState() != BufferState::NotInUse) {}
-
-    auto grainSizeParam = dynamic_cast<AudioParameterInt*>(
-        params.getParameter("grainSize"));
-    auto hopSizeParam = dynamic_cast<AudioParameterInt*>(
-        params.getParameter("hopSize"));
-    auto grainSize = (int)powf(2.0, *grainSizeParam);
-    auto hopSize = (int)powf(2.0, *hopSizeParam);
-    
-    // NOTE TO SELF -- left off here... need to pass newg
-    // grain size and hop size to processor
-    auto corpus = std::make_unique<GrainCorpus>(
-        audioReaders,
-        Window::Hann,
-        grainSize,
-        hopSize);
-    processor.setGrainAndHopSize(grainSize, hopSize);
-    processor.setCorpus(std::move(corpus));
-
-    analyseCorpus();
+    worker.reset(
+        new AnalysisWorker(
+            processor,
+            files,
+            grainSize,
+            hopSize,
+            features));
+    worker->startThread(2);
 }
 
 void CatecophonyAudioProcessorEditor::analyseCorpus()
 {
-    if (processor.getState() == ProcessorState::NoCorpus) return;
+    auto grainSize = getSelectedGrainSize();
+    auto hopSize = getSelectedHopSize();
+    auto features = getSelectedFeatures();
 
-    processor.setState(ProcessorState::Analysing);
-    // Wait for buffers to be free
-    while (processor.getBufferState() != BufferState::NotInUse) {}
+    worker.reset(
+        new AnalysisWorker(
+            processor,
+            grainSize,
+            hopSize,
+            features));
+    worker->startThread(2);
+}
 
-    auto* corpus = processor.getCorpus();
-    auto featureExtractorChain =
-        std::make_unique<FeatureExtractorChain>(corpus->getGrainLength());
-    
+Array<Feature> CatecophonyAudioProcessorEditor::getSelectedFeatures()
+{
     Array<AudioParameterChoice*> featureParams;
     featureParams.add(dynamic_cast<AudioParameterChoice*>(
         params.getParameter("feature_1")));
@@ -127,18 +109,36 @@ void CatecophonyAudioProcessorEditor::analyseCorpus()
         params.getParameter("feature_2")));
     featureParams.add(dynamic_cast<AudioParameterChoice*>(
         params.getParameter("feature_3")));
+    
+    Array<Feature> features;
 
     for (auto featureParam : featureParams)
     {
         if (featureParam->getCurrentChoiceName() != "None")
         {
-            std::cout<<featureParam->getCurrentChoiceName()<<std::endl;
             auto feature = getExtractorByString(
                 featureParam->getCurrentChoiceName());
-            featureExtractorChain->addFeatureExtractor(feature);
+            features.add(feature);
         }
     }
-    corpus->analyse(featureExtractorChain.get());
-    processor.setFeatureExtractorChain(std::move(featureExtractorChain));
-    processor.setState(ProcessorState::Ready);
+
+    return features;
+}
+
+int CatecophonyAudioProcessorEditor::getSelectedGrainSize()
+{
+    auto grainSizeParam = dynamic_cast<AudioParameterInt*>(
+        params.getParameter("grainSize"));
+    auto grainSize = (int)powf(2.0, *grainSizeParam + 1);
+
+    return grainSize;
+}
+
+int CatecophonyAudioProcessorEditor::getSelectedHopSize()
+{
+    auto hopSizeParam = dynamic_cast<AudioParameterInt*>(
+        params.getParameter("hopSize"));
+    auto hopSize = (int)powf(2.0, *hopSizeParam + 1);
+
+    return hopSize;
 }
