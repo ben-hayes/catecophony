@@ -25,6 +25,7 @@
             file="Source/PluginLookAndFeel.cpp"/>
       <FILE id="VYKUNf" name="PluginLookAndFeel.h" compile="0" resource="0"
             file="Source/PluginLookAndFeel.h"/>
+      <FILE id="qlizK1" name="LoadingBar.h" compile="0" resource="0" file="Source/LoadingBar.h"/>
       <FILE id="gtg0T9" name="MainGui.cpp" compile="1" resource="0" file="Source/MainGui.cpp"/>
       <FILE id="wnR0LH" name="MainGui.h" compile="0" resource="0" file="Source/MainGui.h"/>
       <FILE id="cSYDig" name="PluginProcessor.cpp" compile="1" resource="0"

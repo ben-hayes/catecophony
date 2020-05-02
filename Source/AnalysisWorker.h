@@ -24,15 +24,18 @@ public:
         const StringArray files,
         int grainSize,
         int hopSize,
-        Array<Feature> features);
+        Array<Feature> features,
+        std::function<void()> finishedCallback);
     AnalysisWorker(
         CatecophonyAudioProcessor& processor,
         int grainSize,
         int hopSize,
-        Array<Feature> features);
+        Array<Feature> features,
+        std::function<void()> finishedCallback);
     ~AnalysisWorker();
 
     void run() override;
+    float getProgress() {return progress;}
 
 private:
     CatecophonyAudioProcessor& processor;
@@ -40,6 +43,9 @@ private:
     int grainSize;
     int hopSize;
     Array<Feature> features;
+    std::function<void()> finishedCallback;
+
+    float progress;
 
     bool loadFiles;
 

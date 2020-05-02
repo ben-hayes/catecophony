@@ -15,14 +15,16 @@ AnalysisWorker::AnalysisWorker(
     const StringArray files,
     int grainSize,
     int hopSize,
-    Array<Feature> features)
+    Array<Feature> features,
+    std::function<void()> finishedCallback)
     : Thread("CatecophonyCorpusWorker"),
       processor(processor),
       files(files),
       grainSize(grainSize),
       hopSize(hopSize),
       features(features),
-      loadFiles(true)
+      loadFiles(true),
+      finishedCallback(finishedCallback)
 {
     formatManager.registerBasicFormats();
 }
@@ -31,13 +33,15 @@ AnalysisWorker::AnalysisWorker(
     CatecophonyAudioProcessor& processor,
     int grainSize,
     int hopSize,
-    Array<Feature> features)
+    Array<Feature> features,
+    std::function<void()> finishedCallback)
     : Thread("CatecophonyAnalysisOnlyWorker"),
       processor(processor),
       grainSize(grainSize),
       hopSize(hopSize),
       features(features),
-      loadFiles(false)
+      loadFiles(false),
+      finishedCallback(finishedCallback)
 {
     formatManager.registerBasicFormats();
 }
@@ -48,6 +52,8 @@ void AnalysisWorker::run()
 {
     if (loadFiles) loadCorpusFiles();
     analyseCorpus();
+    progress = -1.0f;
+    finishedCallback();
 }
 
 void AnalysisWorker::loadCorpusFiles()
@@ -55,7 +61,8 @@ void AnalysisWorker::loadCorpusFiles()
     processor.setState(ProcessorState::LoadingFiles);
     Array<std::unique_ptr<AudioFormatReader>> audioReaders; 
 
-    for (auto file : files)
+    auto i = 0;
+    for (auto& file : files)
     {
         std::unique_ptr<AudioFormatReader> reader (
             formatManager.createReaderFor(file));
@@ -63,7 +70,12 @@ void AnalysisWorker::loadCorpusFiles()
         if (reader)
         {
             audioReaders.add(std::move(reader));
+        } else
+        {
+            std::cout<<"No reader!"<<std::endl;
         }
+        i++;
+        progress = 0.25f * (float)i / files.size();
     }
 
     // Wait for buffers to be free
@@ -74,8 +86,10 @@ void AnalysisWorker::loadCorpusFiles()
         Window::Hann,
         grainSize,
         hopSize);
+    progress = 0.5f;
     processor.setGrainAndHopSize(grainSize, hopSize);
     processor.setCorpus(std::move(corpus));
+
 }
 
 void AnalysisWorker::analyseCorpus()
@@ -94,7 +108,12 @@ void AnalysisWorker::analyseCorpus()
     {
         featureExtractorChain->addFeatureExtractor(feature);
     }
-    corpus->analyse(featureExtractorChain.get());
+    corpus->analyse(
+        featureExtractorChain.get(),
+        [this](float val) {
+            if (loadFiles) progress = 0.5 + 0.5 * val;
+            else progress = val;
+        });
     processor.setFeatureExtractorChain(std::move(featureExtractorChain));
     processor.setState(ProcessorState::Ready);
 }

@@ -81,7 +81,13 @@ void CatecophonyAudioProcessorEditor::initialiseCorpusFromFilenames(
             files,
             grainSize,
             hopSize,
-            features));
+            features,
+            [this](){
+                gui->stopLoading();
+            }));
+    gui->startLoading([this](){
+        return worker->getProgress();
+    });
     worker->startThread(2);
 }
 
@@ -96,7 +102,13 @@ void CatecophonyAudioProcessorEditor::analyseCorpus()
             processor,
             grainSize,
             hopSize,
-            features));
+            features,
+            [this](){
+                gui->stopLoading();
+            }));
+    gui->startLoading([this](){
+        return worker->getProgress();
+    });
     worker->startThread(2);
 }
 

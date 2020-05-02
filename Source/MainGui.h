@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.4
+  Created with Projucer version: 5.4.7
 
   ------------------------------------------------------------------------------
 
@@ -20,10 +20,13 @@
 #pragma once
 
 //[Headers]     -- You can add your own extra header files here --
+#include <functional>
+
 #include <JuceHeader.h>
 
 #include "CorpusView.h"
 #include "FileDragAndDrop.h"
+#include "LoadingBar.h"
 //[/Headers]
 
 
@@ -44,12 +47,15 @@ class MainGui  : public Component,
 public:
     //==============================================================================
     MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileFilter> fileFilter);
-    ~MainGui();
+    ~MainGui() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
     void setFileDropCallback(std::function<void(const StringArray&)> callback);
     void setAnalyseCallback(std::function<void()> callback);
+
+    void startLoading(std::function<float()> callback);
+    void stopLoading();
     //[/UserMethods]
 
     void paint (Graphics& g) override;
@@ -78,6 +84,7 @@ private:
     //[/UserVariables]
 
     //==============================================================================
+    std::unique_ptr<LoadingBar> loading_bar;
     std::unique_ptr<CorpusView> corpus_view;
     std::unique_ptr<FileDragAndDrop> drag_and_drop;
     std::unique_ptr<ComboBox> feature_3;

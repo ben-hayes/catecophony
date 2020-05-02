@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.4
+  Created with Projucer version: 5.4.7
 
   ------------------------------------------------------------------------------
 
@@ -31,6 +31,12 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
+
+    loading_bar.reset (new LoadingBar());
+    addAndMakeVisible (loading_bar.get());
+    loading_bar->setName ("Loading Bar");
+
+    loading_bar->setBounds (300, 0, 500, 600);
 
     corpus_view.reset (new CorpusView());
     addAndMakeVisible (corpus_view.get());
@@ -256,6 +262,7 @@ MainGui::~MainGui()
     feature_3Attachment = nullptr;
     //[/Destructor_pre]
 
+    loading_bar = nullptr;
     corpus_view = nullptr;
     drag_and_drop = nullptr;
     feature_3 = nullptr;
@@ -512,6 +519,16 @@ void MainGui::setAnalyseCallback(std::function<void()> callback)
 {
     analyse->onClick = callback;
 }
+
+void MainGui::startLoading(std::function<float()> callback)
+{
+    loading_bar->setPaintCallback(callback);
+}
+
+void MainGui::stopLoading()
+{
+    loading_bar->clearCallback();
+}
 //[/MiscUserCode]
 
 
@@ -562,6 +579,9 @@ BEGIN_JUCER_METADATA
           fontname="Futura" fontsize="14.8" kerning="0.147" bold="0" italic="0"
           justification="9" typefaceStyle="Medium"/>
   </BACKGROUND>
+  <GENERICCOMPONENT name="Loading Bar" id="431af9247eeb453f" memberName="loading_bar"
+                    virtualName="" explicitFocusOrder="0" pos="300 0 500 600" class="LoadingBar"
+                    params=""/>
   <GENERICCOMPONENT name="Corpus View" id="4c3d175f513f862d" memberName="corpus_view"
                     virtualName="" explicitFocusOrder="0" pos="300 0 500 600" class="CorpusView"
                     params=""/>

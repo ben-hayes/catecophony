@@ -61,13 +61,17 @@ Grain* GrainCorpus::findNearestGrain(Array<float>& featuresToCompare)
 }
 
 void GrainCorpus::analyse(
-    FeatureExtractorChain* featureExtractors)
+    FeatureExtractorChain* featureExtractors,
+    std::function<void(float)> progressCallback)
 {
     features.clear();
 
+    auto i = 0;
     for (auto& grain : grains)
     {
         features.add(featureExtractors->process(grain));
+        i++;
+        progressCallback((float)i / grains.size());
     }
 
     for (auto& f : features)

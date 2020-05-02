@@ -9,6 +9,8 @@
 */
 
 #pragma once
+#include <functional>
+
 #include <JuceHeader.h>
 
 #include "FeatureExtractors.h"
@@ -27,7 +29,8 @@ public:
     Grain* findNearestGrain(Array<float>& featuresToCompare);
 
     void analyse(
-        FeatureExtractorChain* featureExtractors);
+        FeatureExtractorChain* featureExtractors,
+        std::function<void(float)> progressCallback);
 
     static std::unique_ptr<GrainCorpus> makeCorpusFromAudioFileReaders(
         Array<std::unique_ptr<AudioFormatReader>>&,
