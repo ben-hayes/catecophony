@@ -102,6 +102,7 @@ Grain::Grain(
       monoBuffer(std::make_unique<AudioBuffer<float>>())
 {
     applyWindow(windowType);
+    setMagnitude();
     makeMonoBuffer();
 }
 
@@ -112,6 +113,7 @@ void Grain::init(
     Window::WindowType windowType)
 {
     buffer->setDataToReferTo(data, numChannels, lengthInSamples);
+    setMagnitude();
     applyWindow(windowType);
     makeMonoBuffer();
 }
@@ -151,6 +153,16 @@ void Grain::applyWindow(Window::WindowType windowType)
     }
 }
 
+bool Grain::isSilent(float tolerance)
+{
+    return mag < tolerance;
+}
+
+float Grain::getMagnitude()
+{
+    return mag;
+}
+
 void Grain::makeMonoBuffer()
 {
     monoBuffer->setSize(1, buffer->getNumSamples());
@@ -161,4 +173,9 @@ void Grain::makeMonoBuffer()
         monoBuffer->addFrom(0, 0, *buffer, channel, 0, buffer->getNumSamples());
     }
     monoBuffer->applyGain(1.0f / buffer->getNumChannels());
+}
+
+void Grain::setMagnitude()
+{
+    mag = buffer->getMagnitude(0, buffer->getNumSamples());
 }

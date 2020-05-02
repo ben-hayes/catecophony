@@ -35,6 +35,9 @@ CatecophonyAudioProcessor::CatecophonyAudioProcessor()
                     [](double val, int) {
                         return String((int)powf(2.0f, val + 1));
                     }),
+                std::make_unique<AudioParameterBool>(
+                    "matchGain", "Match Grain Magnitude",
+                    true),
                 std::make_unique<AudioParameterChoice>(
                     "feature_1", "Feature #1",
                     StringArray({
@@ -248,19 +251,30 @@ void CatecophonyAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
             }
 
             workingGrain.init(nextGrain, 2, grainSize, Window::Hann);
-            auto features = featureExtractorChain->process(&workingGrain);
-            auto* nearestGrain = corpus->findNearestGrain(features);
-            auto** rawGrainBuffer = nearestGrain->getRawBuffer();
 
-            for (int i = 0; i < grainSize; i++)
+            if (!workingGrain.isSilent())
             {
-                for (int c = 0; c < 2; c++)
+                auto matchGain = dynamic_cast<AudioParameterBool*>(
+                    params.getParameter("matchGain"))->get();
+                auto gainScale = matchGain ? workingGrain.getMagnitude() : 1.0f;
+                auto features = featureExtractorChain->process(&workingGrain);
+                auto* nearestGrain = corpus->findNearestStep(features);
+                auto** rawGrainBuffer = nearestGrain->getRawBuffer();
+
+                for (int i = 0; i < grainSize; i++)
                 {
-                    outputBuffer[c][
-                        (outputBufferWritePointer + i) % MAX_BUFFER_SIZE] += 
-                            rawGrainBuffer[c][i];
+                    for (int c = 0; c < 2; c++)
+                    {
+                        outputBuffer[c][
+                            (outputBufferWritePointer + i) % MAX_BUFFER_SIZE] += 
+                                rawGrainBuffer[c][i] * gainScale;
+                    }
                 }
+            } else
+            {
+                corpus->resetStepChain();
             }
+
             outputBufferWritePointer += hopSize;
             if (outputBufferWritePointer >= MAX_BUFFER_SIZE)
             {

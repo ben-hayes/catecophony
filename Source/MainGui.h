@@ -81,6 +81,8 @@ private:
         feature_2Attachment;
     std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment>
         feature_3Attachment;
+    std::unique_ptr<AudioProcessorValueTreeState::ButtonAttachment>
+        matchGainAttachment;
     //[/UserVariables]
 
     //==============================================================================
@@ -98,6 +100,8 @@ private:
     std::unique_ptr<TextButton> analyse;
     std::unique_ptr<Slider> grain_size;
     std::unique_ptr<Slider> hop_size;
+    std::unique_ptr<ToggleButton> matchGain;
+    std::unique_ptr<Label> label2;
 
 
     //==============================================================================

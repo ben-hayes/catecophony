@@ -60,6 +60,31 @@ Grain* GrainCorpus::findNearestGrain(Array<float>& featuresToCompare)
     return nearestGrain;
 }
 
+Grain* GrainCorpus::findNearestStep(Array<float>& featuresToCompare)
+{
+    if (startChainFromScratch)
+    {
+        startChainFromScratch = false;
+        return findNearestGrain(featuresToCompare);
+    }
+
+    Array<float> imaginaryFeatures;
+    for (int i = 0; i < featuresToCompare.size(); i++)
+    {
+        imaginaryFeatures.add(
+            lastFeatureMatch[i]
+            + featuresToCompare[i]
+            - lastFeatureInput[i]);
+    }
+
+    return findNearestGrain(imaginaryFeatures);
+}
+
+void GrainCorpus::resetStepChain()
+{
+    startChainFromScratch = true;
+}
+
 void GrainCorpus::analyse(
     FeatureExtractorChain* featureExtractors,
     std::function<void(float)> progressCallback)

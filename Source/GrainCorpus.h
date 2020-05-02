@@ -27,6 +27,8 @@ public:
     ~GrainCorpus() {}
 
     Grain* findNearestGrain(Array<float>& featuresToCompare);
+    Grain* findNearestStep(Array<float>& featuresToCompare);
+    void resetStepChain();
 
     void analyse(
         FeatureExtractorChain* featureExtractors,
@@ -43,6 +45,10 @@ public:
 private:
     OwnedArray<Grain> grains;
     Array<Array<float>> features;
+
+    bool startChainFromScratch = true;
+    Array<float> lastFeatureMatch;
+    Array<float> lastFeatureInput;
 
     size_t grainLength;
     bool analysed = false;

@@ -204,6 +204,26 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
 
     hop_size->setBounds (80, 144, 64, 16);
 
+    matchGain.reset (new ToggleButton ("Match Grain Magnitude"));
+    addAndMakeVisible (matchGain.get());
+    matchGain->setButtonText (String());
+    matchGain->addListener (this);
+
+    matchGain->setBounds (264, 304, 32, 32);
+
+    label2.reset (new Label ("new label",
+                             TRANS("MATCH GRAIN\n"
+                             "MAGNITUDE")));
+    addAndMakeVisible (label2.get());
+    label2->setFont (Font ("Futura", 14.80f, Font::plain).withTypefaceStyle ("Medium").withExtraKerningFactor (0.147f));
+    label2->setJustificationType (Justification::centredRight);
+    label2->setEditable (false, false, false);
+    label2->setColour (Label::textColourId, Colour (0xa0ffffff));
+    label2->setColour (TextEditor::textColourId, Colours::black);
+    label2->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    label2->setBounds (136, 300, 128, 40);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -241,6 +261,11 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
             v,
             "feature_3",
             *feature_3));
+    matchGainAttachment.reset(
+        new AudioProcessorValueTreeState::ButtonAttachment(
+            v,
+            "matchGain",
+            *matchGain));
 
     grain_size->textFromValueFunction = [](double val) {
         return String((int)powf(2.0f, val + 1));
@@ -260,6 +285,7 @@ MainGui::~MainGui()
     feature_1Attachment = nullptr;
     feature_2Attachment = nullptr;
     feature_3Attachment = nullptr;
+    matchGainAttachment = nullptr;
     //[/Destructor_pre]
 
     loading_bar = nullptr;
@@ -276,6 +302,8 @@ MainGui::~MainGui()
     analyse = nullptr;
     grain_size = nullptr;
     hop_size = nullptr;
+    matchGain = nullptr;
+    label2 = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -501,6 +529,11 @@ void MainGui::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_analyse] -- add your button handler code here..
         //[/UserButtonCode_analyse]
     }
+    else if (buttonThatWasClicked == matchGain.get())
+    {
+        //[UserButtonCode_matchGain] -- add your button handler code here..
+        //[/UserButtonCode_matchGain]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -639,6 +672,15 @@ BEGIN_JUCER_METADATA
           min="4.0" max="12.0" int="1.0" style="LinearBar" textBoxPos="TextBoxLeft"
           textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="2.0"
           needsCallback="1"/>
+  <TOGGLEBUTTON name="Match Grain Magnitude" id="857c68940a60714d" memberName="matchGain"
+                virtualName="" explicitFocusOrder="0" pos="264 304 32 32" buttonText=""
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+  <LABEL name="new label" id="71b54d4267d6b770" memberName="label2" virtualName=""
+         explicitFocusOrder="0" pos="136 300 128 40" textCol="a0ffffff"
+         edTextCol="ff000000" edBkgCol="0" labelText="MATCH GRAIN&#10;MAGNITUDE"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Futura" fontsize="14.8" kerning="0.147" bold="0" italic="0"
+         justification="34" typefaceStyle="Medium"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

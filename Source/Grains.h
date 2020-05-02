@@ -56,10 +56,17 @@ public:
     float** getRawBuffer();
     size_t getBufferLength();
 
+    bool isSilent(float tolerance = 0.00001);
+    float getMagnitude();
+
 private:
     std::unique_ptr<AudioBuffer<float>> buffer;
     std::unique_ptr<AudioBuffer<float>> monoBuffer;
 
     void applyWindow(Window::WindowType windowType);
     void makeMonoBuffer();
+
+    void setMagnitude();
+
+    float mag;
 };
