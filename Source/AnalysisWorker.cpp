@@ -12,7 +12,7 @@
 
 AnalysisWorker::AnalysisWorker(
     CatecophonyAudioProcessor& processor,
-    const StringArray& files,
+    const StringArray files,
     int grainSize,
     int hopSize,
     Array<Feature> features)
@@ -34,7 +34,6 @@ AnalysisWorker::AnalysisWorker(
     Array<Feature> features)
     : Thread("CatecophonyAnalysisOnlyWorker"),
       processor(processor),
-      files(noFiles),
       grainSize(grainSize),
       hopSize(hopSize),
       features(features),

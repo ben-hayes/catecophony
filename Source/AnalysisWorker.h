@@ -21,7 +21,7 @@ class AnalysisWorker : public Thread
 public:
     AnalysisWorker(
         CatecophonyAudioProcessor& processor,
-        const StringArray& files,
+        const StringArray files,
         int grainSize,
         int hopSize,
         Array<Feature> features);
@@ -36,8 +36,7 @@ public:
 
 private:
     CatecophonyAudioProcessor& processor;
-    const StringArray noFiles;
-    const StringArray& files;
+    const StringArray files;
     int grainSize;
     int hopSize;
     Array<Feature> features;
