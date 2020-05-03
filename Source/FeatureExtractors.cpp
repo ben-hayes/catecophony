@@ -515,7 +515,15 @@ std::unique_ptr<Array<Array<float>>> pcaReduce(
 
     pca->input("poolIn").set(pool);
     pca->output("poolOut").set(pool);
-    pca->compute();
+    try
+    {
+        pca->compute();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
 
     const std::vector<std::vector<e::Real>>& pcaOut =
         pool.value<std::vector<std::vector<e::Real>>>("pca.out");

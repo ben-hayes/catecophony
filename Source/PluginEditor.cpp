@@ -133,16 +133,25 @@ Array<Feature> CatecophonyAudioProcessorEditor::getSelectedFeatures()
         params.getParameter("feature_2")));
     featureParams.add(dynamic_cast<AudioParameterChoice*>(
         params.getParameter("feature_3")));
+    StringArray addedFeatureNames;
     
     Array<Feature> features;
 
     for (auto featureParam : featureParams)
     {
-        if (featureParam->getCurrentChoiceName() != "None")
+        auto featureName  = featureParam->getCurrentChoiceName();
+
+        bool skip = false;
+        for (auto& addedFeature : addedFeatureNames)
+            if (featureName == addedFeature)
+                skip = true;
+        if (skip) continue;
+
+        if (featureName != "None")
         {
-            auto feature = getExtractorByString(
-                featureParam->getCurrentChoiceName());
+            auto feature = getExtractorByString(featureName);
             features.add(feature);
+            addedFeatureNames.add(featureName);
         }
     }
 
