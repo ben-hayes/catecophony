@@ -16,6 +16,7 @@ AnalysisWorker::AnalysisWorker(
     int grainSize,
     int hopSize,
     Array<Feature> features,
+    Window::WindowType window,
     std::function<void()> finishedCallback)
     : Thread("CatecophonyCorpusWorker"),
       processor(processor),
@@ -23,6 +24,7 @@ AnalysisWorker::AnalysisWorker(
       grainSize(grainSize),
       hopSize(hopSize),
       features(features),
+      window(window),
       loadFiles(true),
       finishedCallback(finishedCallback)
 {
@@ -34,12 +36,14 @@ AnalysisWorker::AnalysisWorker(
     int grainSize,
     int hopSize,
     Array<Feature> features,
+    Window::WindowType window,
     std::function<void()> finishedCallback)
     : Thread("CatecophonyAnalysisOnlyWorker"),
       processor(processor),
       grainSize(grainSize),
       hopSize(hopSize),
       features(features),
+      window(window),
       loadFiles(false),
       finishedCallback(finishedCallback)
 {
@@ -86,11 +90,12 @@ void AnalysisWorker::loadCorpusFiles()
     
     auto corpus = std::make_unique<GrainCorpus>(
         audioReaders,
-        Window::Hann,
+        window,
         grainSize,
         hopSize);
     progress = 0.5f;
     processor.setGrainAndHopSize(grainSize, hopSize);
+    processor.setWindow(window);
     processor.setCorpus(std::move(corpus));
 
 }

@@ -78,6 +78,7 @@ public:
     //==============================================================================
 
     void setGrainAndHopSize(size_t grainSize, size_t hopSize);
+    void setWindow(Window::WindowType window);
 
     ProcessorState getState();
     BufferState getBufferState();
@@ -101,12 +102,14 @@ private:
     ValueTree corpusFiles;
 
     std::atomic<float>* dryWet;
+    std::atomic<float>* lpfCutoff;
     std::atomic<float>* temperature;
     ProcessorState state = ProcessorState::NoCorpus;
     BufferState bufState = BufferState::NotInUse;
 
     std::unique_ptr<AnalysisWorker> worker;
 
+    Window::WindowType window = Window::Hann;
     size_t grainSize = 4096;
     size_t hopSize = 2048;
     int hopCounter = 0;
@@ -121,6 +124,9 @@ private:
 
     int grainBufferWritePointer;
 
+    IIRFilter lpf;
+    float lastCutoff = 0.0f;
+
     std::unique_ptr<GrainCorpus> corpus;
     std::unique_ptr<FeatureExtractorChain> featureExtractorChain;
 
@@ -128,6 +134,7 @@ private:
     int getSelectedGrainSize();
     int getSelectedHopSize();
     Array<Feature> getSelectedFeatures();
+    Window::WindowType getSelectedWindow();
 
     void addFilenamesToValueTree(const StringArray& files);
     void reloadCorpusFromValueTree();

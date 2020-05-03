@@ -78,11 +78,15 @@ private:
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment>
         dryWetAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment>
+        lpfCutoffAttachment;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment>
         temperatureAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment>
         grainSizeAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment>
         hopSizeAttachment;
+    std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment>
+        window_typeAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment>
         feature_1Attachment;
     std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment>
@@ -91,6 +95,8 @@ private:
         feature_3Attachment;
     std::unique_ptr<AudioProcessorValueTreeState::ButtonAttachment>
         matchGainAttachment;
+    std::unique_ptr<AudioProcessorValueTreeState::ButtonAttachment>
+        relativeMatchingAttachment;
     //[/UserVariables]
 
     //==============================================================================
@@ -111,8 +117,8 @@ private:
     std::unique_ptr<Slider> temperature;
     std::unique_ptr<Label> label4;
     std::unique_ptr<ToggleButton> relativeMatching;
-    std::unique_ptr<ComboBox> feature_4;
-    std::unique_ptr<Slider> dry_wet2;
+    std::unique_ptr<ComboBox> window_type;
+    std::unique_ptr<Slider> lpfCutoff;
     std::unique_ptr<Label> label5;
 
 

@@ -27,13 +27,11 @@ enum Feature
     MFCC,
     F0,
     SpectralFlatness,
-    SpectralComplexity,
     SpectralRollOff,
     SpectralContrast,
     SpectralPeaks,
     StrongPeak,
     ZeroCrossingRate,
-    MaxMagFreq,
     RMS
 };
 
@@ -154,17 +152,6 @@ public:
 private:
     es::AlgorithmFactory& algorithmFactory;
     std::unique_ptr<es::Algorithm> flatness;
-};
-
-class SpectralComplexityFeatureExtractor : public FFTBasedFeatureExtractor
-{
-public:
-    SpectralComplexityFeatureExtractor();
-    std::vector<e::Real> process(std::vector<e::Real>& fftInput) override;
-
-private:
-    es::AlgorithmFactory& algorithmFactory;
-    std::unique_ptr<es::Algorithm> complexity;
 };
 
 class SpectralRollOffFeatureExtractor : public FFTBasedFeatureExtractor

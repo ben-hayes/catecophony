@@ -24,8 +24,12 @@ CatecophonyAudioProcessor::CatecophonyAudioProcessor()
                     "drywet", "Dry/Wet",
                     0.0f, 1.0f, 1.0f),
                 std::make_unique<AudioParameterFloat>(
+                    "lpfCutoff", "LPF Cutoff",
+                    NormalisableRange<float>{0.001f, 1.0f, 0.001f, 0.25f},
+                    1.0f),
+                std::make_unique<AudioParameterFloat>(
                     "temperature", "Temperature",
-                    0.0f, 1.0f, 0.0f),
+                    0.0f, 2.0f, 0.0f),
                 std::make_unique<AudioParameterInt>(
                     "grainSize", "Grain Size",
                     5, 13, 11, String(),
@@ -41,18 +45,25 @@ CatecophonyAudioProcessor::CatecophonyAudioProcessor()
                 std::make_unique<AudioParameterBool>(
                     "matchGain", "Match Grain Magnitude",
                     true),
+                std::make_unique<AudioParameterBool>(
+                    "relativeMatching", "Relative Matching",
+                    true),
+                std::make_unique<AudioParameterChoice>(
+                    "window_type", "Window Type",
+                    StringArray({
+                        "Rectangular",
+                        "Triangular",
+                        "Hann",
+                        "Hamming"
+                    }),
+                    2),
                 std::make_unique<AudioParameterChoice>(
                     "feature_1", "Feature #1",
                     StringArray({
-                        "Dissonance",
                         "F0",
-                        "Inharmonicity",
                         "MFCC",
-                        "Odd:even Harmonic Ratio",
-                        "Pitch Salience",
                         "RMS",
                         "Spectral Centroid",
-                        "Spectral Complexity",
                         "Spectral Contrast",
                         "Spectral Flatness",
                         "Spectral Peaks",
@@ -60,20 +71,15 @@ CatecophonyAudioProcessor::CatecophonyAudioProcessor()
                         "Strong Peak Ratio",
                         "Zero Crossing Rate"
                     }),
-                    7),
+                    6),
                 std::make_unique<AudioParameterChoice>(
                     "feature_2", "Feature #2",
                     StringArray({
                         "None",
-                        "Dissonance",
                         "F0",
-                        "Inharmonicity",
                         "MFCC",
-                        "Odd:even Harmonic Ratio",
-                        "Pitch Salience",
                         "RMS",
                         "Spectral Centroid",
-                        "Spectral Complexity",
                         "Spectral Contrast",
                         "Spectral Flatness",
                         "Spectral Peaks",
@@ -86,15 +92,10 @@ CatecophonyAudioProcessor::CatecophonyAudioProcessor()
                     "feature_3", "Feature #3",
                     StringArray({
                         "None",
-                        "Dissonance",
                         "F0",
-                        "Inharmonicity",
                         "MFCC",
-                        "Odd:even Harmonic Ratio",
-                        "Pitch Salience",
                         "RMS",
                         "Spectral Centroid",
-                        "Spectral Complexity",
                         "Spectral Contrast",
                         "Spectral Flatness",
                         "Spectral Peaks",
@@ -102,11 +103,12 @@ CatecophonyAudioProcessor::CatecophonyAudioProcessor()
                         "Strong Peak Ratio",
                         "Zero Crossing Rate"
                     }),
-                    11)    
+                    9)
         }),
         corpusFiles("CorpusFiles", {})
 {
     dryWet = params.getRawParameterValue("drywet");
+    lpfCutoff = params.getRawParameterValue("lpfCutoff");
     temperature = params.getRawParameterValue("temperature");
 }
 
@@ -213,7 +215,9 @@ bool CatecophonyAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 }
 #endif
 
-void CatecophonyAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
+void CatecophonyAudioProcessor::processBlock (
+    AudioBuffer<float>& buffer,
+    MidiBuffer& midiMessages)
 {
     ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
@@ -224,6 +228,14 @@ void CatecophonyAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     if (state != ProcessorState::Ready) return;
 
     bufState = BufferState::InUse;
+    if (*lpfCutoff != lastCutoff)
+    {
+        auto coeffs = IIRCoefficients::makeLowPass(
+            getSampleRate(),
+            getSampleRate() * 0.5f * *lpfCutoff);
+        lpf.setCoefficients(coeffs);
+        lastCutoff = *lpfCutoff;
+    }
     for (int n = 0; n < buffer.getNumSamples(); n++)
     {
         for (int channel = 0; channel < totalNumInputChannels; channel++)
@@ -251,20 +263,22 @@ void CatecophonyAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
                 }
             }
 
-            workingGrain.init(nextGrain, 2, grainSize, Window::Hann);
+            workingGrain.init(nextGrain, 2, grainSize, window);
 
             if (!workingGrain.isSilent())
             {
                 auto matchGain = dynamic_cast<AudioParameterBool*>(
                     params.getParameter("matchGain"))->get();
+                auto relativeMatching = dynamic_cast<AudioParameterBool*>(
+                    params.getParameter("relativeMatching"))->get();
                 auto features = featureExtractorChain->process(&workingGrain);
-                auto* nearestGrain =
-                    corpus->findNearestStep(features, *temperature);
+                auto* nearestGrain = relativeMatching
+                    ? corpus->findNearestStep(features, *temperature)
+                    : corpus->findNearestGrain(features, *temperature);
                 auto** rawGrainBuffer = nearestGrain->getRawBuffer();
                 auto gainScale = matchGain
-                                ? workingGrain.getMagnitude()
-                                    / nearestGrain->getMagnitude()
-                                : 1.0f;
+                    ? workingGrain.getMagnitude() / nearestGrain->getMagnitude()
+                    : 1.0f;
 
                 for (int i = 0; i < grainSize; i++)
                 {
@@ -291,8 +305,11 @@ void CatecophonyAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
         for (int channel = 0; channel < totalNumInputChannels; channel++)
         {
             auto inSample = buffer.getSample(channel, n);
-            auto out = *dryWet * outputBuffer[channel][outputBufferReadPointer]
-                + (1.0f - *dryWet) * inSample;
+            auto wetSample = *lpfCutoff != 1.0f
+                ? lpf.processSingleSampleRaw(
+                    outputBuffer[channel][outputBufferReadPointer])
+                : outputBuffer[channel][outputBufferReadPointer];
+            auto out = *dryWet * wetSample + (1.0f - *dryWet) * inSample;
             buffer.setSample(
                 channel,
                 n,
@@ -370,6 +387,11 @@ void CatecophonyAudioProcessor::setGrainAndHopSize(
     initialiseBuffers();
 }
 
+void CatecophonyAudioProcessor::setWindow(Window::WindowType window)
+{
+    this->window = window;
+}
+
 ProcessorState CatecophonyAudioProcessor::getState()
 {
     return state;
@@ -414,6 +436,7 @@ void CatecophonyAudioProcessor::initialiseCorpusFromFilenames(
     auto workingGrainSize = getSelectedGrainSize();
     auto workingHopSize = getSelectedHopSize();
     auto workingFeatures = getSelectedFeatures();
+    auto workingWindow = getSelectedWindow();
 
     worker.reset(
         new AnalysisWorker(
@@ -422,6 +445,7 @@ void CatecophonyAudioProcessor::initialiseCorpusFromFilenames(
             workingGrainSize,
             workingHopSize,
             workingFeatures,
+            workingWindow,
             finishedCallback));
     worker->startThread(2);
 }
@@ -433,19 +457,7 @@ void CatecophonyAudioProcessor::analyseCorpus(
     {
         return;
     }
-
-    auto workingGrainSize = getSelectedGrainSize();
-    auto workingHopSize = getSelectedHopSize();
-    auto workingFeatures = getSelectedFeatures();
-
-    worker.reset(
-        new AnalysisWorker(
-            *this,
-            workingGrainSize,
-            workingHopSize,
-            workingFeatures,
-            finishedCallback));
-    worker->startThread(2);
+    reloadCorpusFromValueTree();
 }
 
 float CatecophonyAudioProcessor::getWorkerProgress()
@@ -487,6 +499,24 @@ void CatecophonyAudioProcessor::initialiseBuffers()
             nextGrain[c][n] = 0.0f;
         }
     }
+}
+
+Window::WindowType CatecophonyAudioProcessor::getSelectedWindow()
+{
+    AudioParameterChoice* windowParam;
+    windowParam = dynamic_cast<AudioParameterChoice*>(
+        params.getParameter("window_type"));
+    auto windowName = windowParam->getCurrentChoiceName();
+    if (windowName == "Rectangular")
+        return Window::Rectangular;
+    else if (windowName == "Triangular")
+        return Window::Triangular;
+    else if (windowName == "Hann")
+        return Window::Hann;
+    else if (windowName == "Hamming")
+        return Window::Hamming;
+    else
+        return Window::Hann;
 }
 
 Array<Feature> CatecophonyAudioProcessor::getSelectedFeatures()

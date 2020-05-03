@@ -26,12 +26,14 @@ public:
         int grainSize,
         int hopSize,
         Array<Feature> features,
+        Window::WindowType window,
         std::function<void()> finishedCallback);
     AnalysisWorker(
         CatecophonyAudioProcessor& processor,
         int grainSize,
         int hopSize,
         Array<Feature> features,
+        Window::WindowType window,
         std::function<void()> finishedCallback);
     ~AnalysisWorker();
 
@@ -41,6 +43,7 @@ public:
 private:
     CatecophonyAudioProcessor& processor;
     const StringArray files;
+    Window::WindowType window;
     int grainSize;
     int hopSize;
     Array<Feature> features;

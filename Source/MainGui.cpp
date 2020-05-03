@@ -45,9 +45,10 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
     label3->setBounds (8, 347, 132, 40);
 
     label2.reset (new Label ("new label",
-                             TRANS("MATCH MAGNITUDE")));
+                             TRANS("MATCH\n"
+                             "MAGNITUDE")));
     addAndMakeVisible (label2.get());
-    label2->setFont (Font ("Futura", 10.00f, Font::plain).withTypefaceStyle ("Medium").withExtraKerningFactor (0.147f));
+    label2->setFont (Font ("Futura", 12.00f, Font::plain).withTypefaceStyle ("Medium").withExtraKerningFactor (0.147f));
     label2->setJustificationType (Justification::centredRight);
     label2->setEditable (false, false, false);
     label2->setColour (Label::textColourId, Colour (0xa0ff7c7c));
@@ -69,21 +70,16 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
     feature_3->setTextWhenNothingSelected (String());
     feature_3->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     feature_3->addItem (TRANS("None"), 1);
-    feature_3->addItem (TRANS("Dissonance"), 2);
-    feature_3->addItem (TRANS("F0"), 3);
-    feature_3->addItem (TRANS("Inharmonicity"), 4);
-    feature_3->addItem (TRANS("MFCC"), 5);
-    feature_3->addItem (TRANS("Odd:even Harmonic Ratio"), 6);
-    feature_3->addItem (TRANS("Pitch Salience"), 7);
-    feature_3->addItem (TRANS("RMS"), 8);
-    feature_3->addItem (TRANS("Spectral Centroid"), 9);
-    feature_3->addItem (TRANS("Spectral Complexity"), 10);
-    feature_3->addItem (TRANS("Spectral Contrast"), 11);
-    feature_3->addItem (TRANS("Spectral Flatness"), 12);
-    feature_3->addItem (TRANS("Spectral Peaks"), 13);
-    feature_3->addItem (TRANS("Spectral Roll-off"), 14);
-    feature_3->addItem (TRANS("Strong Peak Ratio"), 15);
-    feature_3->addItem (TRANS("Zero Crossing Rate"), 16);
+    feature_3->addItem (TRANS("F0"), 2);
+    feature_3->addItem (TRANS("MFCC"), 3);
+    feature_3->addItem (TRANS("RMS"), 4);
+    feature_3->addItem (TRANS("Spectral Centroid"), 5);
+    feature_3->addItem (TRANS("Spectral Contrast"), 6);
+    feature_3->addItem (TRANS("Spectral Flatness"), 7);
+    feature_3->addItem (TRANS("Spectral Peaks"), 8);
+    feature_3->addItem (TRANS("Spectral Roll-off"), 9);
+    feature_3->addItem (TRANS("Strong Peak Ratio"), 10);
+    feature_3->addItem (TRANS("Zero Crossing Rate"), 11);
     feature_3->addListener (this);
 
     feature_3->setBounds (8, 236, 136, 16);
@@ -95,21 +91,16 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
     feature_2->setTextWhenNothingSelected (String());
     feature_2->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     feature_2->addItem (TRANS("None"), 1);
-    feature_2->addItem (TRANS("Dissonance"), 2);
-    feature_2->addItem (TRANS("F0"), 3);
-    feature_2->addItem (TRANS("Inharmonicity"), 4);
-    feature_2->addItem (TRANS("MFCC"), 5);
-    feature_2->addItem (TRANS("Odd:even Harmonic Ratio"), 6);
-    feature_2->addItem (TRANS("Pitch Salience"), 7);
-    feature_2->addItem (TRANS("RMS"), 8);
-    feature_2->addItem (TRANS("Spectral Centroid"), 9);
-    feature_2->addItem (TRANS("Spectral Complexity"), 10);
-    feature_2->addItem (TRANS("Spectral Contrast"), 11);
-    feature_2->addItem (TRANS("Spectral Flatness"), 12);
-    feature_2->addItem (TRANS("Spectral Peaks"), 13);
-    feature_2->addItem (TRANS("Spectral Roll-off"), 14);
-    feature_2->addItem (TRANS("Strong Peak Ratio"), 15);
-    feature_2->addItem (TRANS("Zero Crossing Rate"), 16);
+    feature_2->addItem (TRANS("F0"), 2);
+    feature_2->addItem (TRANS("MFCC"), 3);
+    feature_2->addItem (TRANS("RMS"), 4);
+    feature_2->addItem (TRANS("Spectral Centroid"), 5);
+    feature_2->addItem (TRANS("Spectral Contrast"), 6);
+    feature_2->addItem (TRANS("Spectral Flatness"), 7);
+    feature_2->addItem (TRANS("Spectral Peaks"), 8);
+    feature_2->addItem (TRANS("Spectral Roll-off"), 9);
+    feature_2->addItem (TRANS("Strong Peak Ratio"), 10);
+    feature_2->addItem (TRANS("Zero Crossing Rate"), 11);
     feature_2->addListener (this);
 
     feature_2->setBounds (8, 212, 136, 16);
@@ -120,21 +111,16 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
     feature_1->setJustificationType (Justification::centredLeft);
     feature_1->setTextWhenNothingSelected (String());
     feature_1->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    feature_1->addItem (TRANS("Dissonance"), 1);
-    feature_1->addItem (TRANS("F0"), 2);
-    feature_1->addItem (TRANS("Inharmonicity"), 3);
-    feature_1->addItem (TRANS("MFCC"), 4);
-    feature_1->addItem (TRANS("Odd:even Harmonic Ratio"), 5);
-    feature_1->addItem (TRANS("Pitch Salience"), 6);
-    feature_1->addItem (TRANS("RMS"), 7);
-    feature_1->addItem (TRANS("Spectral Centroid"), 8);
-    feature_1->addItem (TRANS("Spectral Complexity"), 9);
-    feature_1->addItem (TRANS("Spectral Contrast"), 10);
-    feature_1->addItem (TRANS("Spectral Flatness"), 11);
-    feature_1->addItem (TRANS("Spectral Peaks"), 12);
-    feature_1->addItem (TRANS("Spectral Roll-off"), 13);
-    feature_1->addItem (TRANS("Strong Peak Ratio"), 14);
-    feature_1->addItem (TRANS("Zero Crossing Rate"), 15);
+    feature_1->addItem (TRANS("F0"), 1);
+    feature_1->addItem (TRANS("MFCC"), 2);
+    feature_1->addItem (TRANS("RMS"), 3);
+    feature_1->addItem (TRANS("Spectral Centroid"), 4);
+    feature_1->addItem (TRANS("Spectral Contrast"), 5);
+    feature_1->addItem (TRANS("Spectral Flatness"), 6);
+    feature_1->addItem (TRANS("Spectral Peaks"), 7);
+    feature_1->addItem (TRANS("Spectral Roll-off"), 8);
+    feature_1->addItem (TRANS("Strong Peak Ratio"), 9);
+    feature_1->addItem (TRANS("Zero Crossing Rate"), 10);
     feature_1->addListener (this);
 
     feature_1->setBounds (8, 188, 136, 16);
@@ -217,7 +203,7 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
 
     temperature.reset (new Slider ("Temperature"));
     addAndMakeVisible (temperature.get());
-    temperature->setRange (0, 1, 0.001);
+    temperature->setRange (0, 2, 0.001);
     temperature->setSliderStyle (Slider::LinearHorizontal);
     temperature->setTextBoxStyle (Slider::NoTextBox, true, 80, 20);
     temperature->setColour (Slider::backgroundColourId, Colour (0xffff7c7c));
@@ -228,16 +214,17 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
     temperature->setBounds (4, 368, 144, 35);
 
     label4.reset (new Label ("new label",
-                             TRANS("RELATIVE MATCHING")));
+                             TRANS("RELATIVE\n"
+                             "MATCHING")));
     addAndMakeVisible (label4.get());
-    label4->setFont (Font ("Futura", 10.00f, Font::plain).withTypefaceStyle ("Medium").withExtraKerningFactor (0.147f));
+    label4->setFont (Font ("Futura", 12.00f, Font::plain).withTypefaceStyle ("Medium").withExtraKerningFactor (0.147f));
     label4->setJustificationType (Justification::centredRight);
     label4->setEditable (false, false, false);
     label4->setColour (Label::textColourId, Colour (0xa0ff7c7c));
     label4->setColour (TextEditor::textColourId, Colours::black);
     label4->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    label4->setBounds (8, 416, 116, 40);
+    label4->setBounds (8, 408, 116, 40);
 
     relativeMatching.reset (new ToggleButton ("Relative Matching"));
     addAndMakeVisible (relativeMatching.get());
@@ -245,50 +232,39 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
     relativeMatching->addListener (this);
     relativeMatching->setToggleState (true, dontSendNotification);
 
-    relativeMatching->setBounds (120, 424, 32, 24);
+    relativeMatching->setBounds (120, 416, 32, 24);
 
-    feature_4.reset (new ComboBox ("Feature #1"));
-    addAndMakeVisible (feature_4.get());
-    feature_4->setEditableText (false);
-    feature_4->setJustificationType (Justification::centredLeft);
-    feature_4->setTextWhenNothingSelected (String());
-    feature_4->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    feature_4->addItem (TRANS("Dissonance"), 1);
-    feature_4->addItem (TRANS("F0"), 2);
-    feature_4->addItem (TRANS("Inharmonicity"), 3);
-    feature_4->addItem (TRANS("MFCC"), 4);
-    feature_4->addItem (TRANS("Odd:even Harmonic Ratio"), 5);
-    feature_4->addItem (TRANS("Pitch Salience"), 6);
-    feature_4->addItem (TRANS("RMS"), 7);
-    feature_4->addItem (TRANS("Spectral Centroid"), 8);
-    feature_4->addItem (TRANS("Spectral Complexity"), 9);
-    feature_4->addItem (TRANS("Spectral Contrast"), 10);
-    feature_4->addItem (TRANS("Spectral Flatness"), 11);
-    feature_4->addItem (TRANS("Spectral Peaks"), 12);
-    feature_4->addItem (TRANS("Spectral Roll-off"), 13);
-    feature_4->addItem (TRANS("Strong Peak Ratio"), 14);
-    feature_4->addItem (TRANS("Zero Crossing Rate"), 15);
-    feature_4->addListener (this);
+    window_type.reset (new ComboBox ("Window Type"));
+    addAndMakeVisible (window_type.get());
+    window_type->setEditableText (false);
+    window_type->setJustificationType (Justification::centredLeft);
+    window_type->setTextWhenNothingSelected (String());
+    window_type->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    window_type->addItem (TRANS("Rectangular"), 1);
+    window_type->addItem (TRANS("Triangular"), 2);
+    window_type->addItem (TRANS("Hann"), 3);
+    window_type->addItem (TRANS("Hamming"), 4);
+    window_type->addListener (this);
 
-    feature_4->setBounds (8, 72, 136, 16);
+    window_type->setBounds (8, 72, 136, 16);
 
-    dry_wet2.reset (new Slider ("Dry/Wet"));
-    addAndMakeVisible (dry_wet2.get());
-    dry_wet2->setRange (0, 1, 0.01);
-    dry_wet2->setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
-    dry_wet2->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
-    dry_wet2->setColour (Slider::backgroundColourId, Colour (0xffff7c7c));
-    dry_wet2->setColour (Slider::thumbColourId, Colour (0xff88e1f2));
-    dry_wet2->setColour (Slider::trackColourId, Colour (0xffff7c7c));
-    dry_wet2->setColour (Slider::rotarySliderFillColourId, Colour (0xffff7c7c));
-    dry_wet2->setColour (Slider::rotarySliderOutlineColourId, Colour (0xffff7c7c));
-    dry_wet2->addListener (this);
+    lpfCutoff.reset (new Slider ("LPF Cutoff"));
+    addAndMakeVisible (lpfCutoff.get());
+    lpfCutoff->setRange (0.001, 1, 0.01);
+    lpfCutoff->setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
+    lpfCutoff->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
+    lpfCutoff->setColour (Slider::backgroundColourId, Colour (0xffff7c7c));
+    lpfCutoff->setColour (Slider::thumbColourId, Colour (0xff88e1f2));
+    lpfCutoff->setColour (Slider::trackColourId, Colour (0xffff7c7c));
+    lpfCutoff->setColour (Slider::rotarySliderFillColourId, Colour (0xffff7c7c));
+    lpfCutoff->setColour (Slider::rotarySliderOutlineColourId, Colour (0xffff7c7c));
+    lpfCutoff->addListener (this);
 
-    dry_wet2->setBounds (0, 528, 76, 70);
+    lpfCutoff->setBounds (0, 528, 76, 70);
 
     label5.reset (new Label ("new label",
-                             TRANS("INPUT\n"
-                             "GAIN")));
+                             TRANS("LPF\n"
+                             "CUTOFF")));
     addAndMakeVisible (label5.get());
     label5->setFont (Font ("Futura", 14.80f, Font::plain).withTypefaceStyle ("Medium").withExtraKerningFactor (0.147f));
     label5->setJustificationType (Justification::centred);
@@ -311,6 +287,11 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
         v,
         "drywet",
         *dry_wet));
+    lpfCutoffAttachment.reset(
+        new AudioProcessorValueTreeState::SliderAttachment(
+            v,
+            "lpfCutoff",
+            *lpfCutoff));
     temperatureAttachment.reset(
         new AudioProcessorValueTreeState::SliderAttachment(
             v,
@@ -326,6 +307,11 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
             v,
             "hopSize",
             *hop_size));
+    window_typeAttachment.reset(
+        new AudioProcessorValueTreeState::ComboBoxAttachment(
+            v,
+            "window_type",
+            *window_type));
     feature_1Attachment.reset(
         new AudioProcessorValueTreeState::ComboBoxAttachment(
             v,
@@ -346,6 +332,11 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
             v,
             "matchGain",
             *matchGain));
+    relativeMatchingAttachment.reset(
+        new AudioProcessorValueTreeState::ButtonAttachment(
+            v,
+            "relativeMatching",
+            *relativeMatching));
 
     grain_size->textFromValueFunction = [](double val) {
         return String((int)powf(2.0f, val + 1));
@@ -360,13 +351,16 @@ MainGui::~MainGui()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
     dryWetAttachment = nullptr;
+    lpfCutoffAttachment = nullptr;
     temperatureAttachment = nullptr;
     grainSizeAttachment = nullptr;
     hopSizeAttachment = nullptr;
+    window_typeAttachment = nullptr;
     feature_1Attachment = nullptr;
     feature_2Attachment = nullptr;
     feature_3Attachment = nullptr;
     matchGainAttachment = nullptr;
+    relativeMatchingAttachment = nullptr;
     //[/Destructor_pre]
 
     label3 = nullptr;
@@ -386,8 +380,8 @@ MainGui::~MainGui()
     temperature = nullptr;
     label4 = nullptr;
     relativeMatching = nullptr;
-    feature_4 = nullptr;
-    dry_wet2 = nullptr;
+    window_type = nullptr;
+    lpfCutoff = nullptr;
     label5 = nullptr;
 
 
@@ -574,10 +568,10 @@ void MainGui::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         //[UserComboBoxCode_feature_1] -- add your combo box handling code here..
         //[/UserComboBoxCode_feature_1]
     }
-    else if (comboBoxThatHasChanged == feature_4.get())
+    else if (comboBoxThatHasChanged == window_type.get())
     {
-        //[UserComboBoxCode_feature_4] -- add your combo box handling code here..
-        //[/UserComboBoxCode_feature_4]
+        //[UserComboBoxCode_window_type] -- add your combo box handling code here..
+        //[/UserComboBoxCode_window_type]
     }
 
     //[UsercomboBoxChanged_Post]
@@ -604,10 +598,10 @@ void MainGui::sliderValueChanged (Slider* sliderThatWasMoved)
         //[UserSliderCode_hop_size] -- add your slider handling code here..
         //[/UserSliderCode_hop_size]
     }
-    else if (sliderThatWasMoved == dry_wet2.get())
+    else if (sliderThatWasMoved == lpfCutoff.get())
     {
-        //[UserSliderCode_dry_wet2] -- add your slider handling code here..
-        //[/UserSliderCode_dry_wet2]
+        //[UserSliderCode_lpfCutoff] -- add your slider handling code here..
+        //[/UserSliderCode_lpfCutoff]
     }
 
     //[UsersliderValueChanged_Post]
@@ -738,24 +732,24 @@ BEGIN_JUCER_METADATA
          typefaceStyle="Medium"/>
   <LABEL name="new label" id="71b54d4267d6b770" memberName="label2" virtualName=""
          explicitFocusOrder="0" pos="8 440 116 40" textCol="a0ff7c7c"
-         edTextCol="ff000000" edBkgCol="0" labelText="MATCH MAGNITUDE"
+         edTextCol="ff000000" edBkgCol="0" labelText="MATCH&#10;MAGNITUDE"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Futura" fontsize="10.0" kerning="0.147" bold="0" italic="0"
+         fontname="Futura" fontsize="12.0" kerning="0.147" bold="0" italic="0"
          justification="34" typefaceStyle="Medium"/>
   <GENERICCOMPONENT name="Loading Bar" id="431af9247eeb453f" memberName="loading_bar"
                     virtualName="" explicitFocusOrder="0" pos="152 0 648 600" class="LoadingBar"
                     params=""/>
   <COMBOBOX name="Feature #3" id="7795db765f687142" memberName="feature_3"
             virtualName="" explicitFocusOrder="0" pos="8 236 136 16" editable="0"
-            layout="33" items="None&#10;Dissonance&#10;F0&#10;Inharmonicity&#10;MFCC&#10;Odd:even Harmonic Ratio&#10;Pitch Salience&#10;RMS&#10;Spectral Centroid&#10;Spectral Complexity&#10;Spectral Contrast&#10;Spectral Flatness&#10;Spectral Peaks&#10;Spectral Roll-off&#10;Strong Peak Ratio&#10;Zero Crossing Rate"
+            layout="33" items="None&#10;F0&#10;MFCC&#10;RMS&#10;Spectral Centroid&#10;Spectral Contrast&#10;Spectral Flatness&#10;Spectral Peaks&#10;Spectral Roll-off&#10;Strong Peak Ratio&#10;Zero Crossing Rate"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <COMBOBOX name="Feature #2" id="fb32e96538878318" memberName="feature_2"
             virtualName="" explicitFocusOrder="0" pos="8 212 136 16" editable="0"
-            layout="33" items="None&#10;Dissonance&#10;F0&#10;Inharmonicity&#10;MFCC&#10;Odd:even Harmonic Ratio&#10;Pitch Salience&#10;RMS&#10;Spectral Centroid&#10;Spectral Complexity&#10;Spectral Contrast&#10;Spectral Flatness&#10;Spectral Peaks&#10;Spectral Roll-off&#10;Strong Peak Ratio&#10;Zero Crossing Rate"
+            layout="33" items="None&#10;F0&#10;MFCC&#10;RMS&#10;Spectral Centroid&#10;Spectral Contrast&#10;Spectral Flatness&#10;Spectral Peaks&#10;Spectral Roll-off&#10;Strong Peak Ratio&#10;Zero Crossing Rate"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <COMBOBOX name="Feature #1" id="a431f809fa16057a" memberName="feature_1"
             virtualName="" explicitFocusOrder="0" pos="8 188 136 16" editable="0"
-            layout="33" items="Dissonance&#10;F0&#10;Inharmonicity&#10;MFCC&#10;Odd:even Harmonic Ratio&#10;Pitch Salience&#10;RMS&#10;Spectral Centroid&#10;Spectral Complexity&#10;Spectral Contrast&#10;Spectral Flatness&#10;Spectral Peaks&#10;Spectral Roll-off&#10;Strong Peak Ratio&#10;Zero Crossing Rate"
+            layout="33" items="F0&#10;MFCC&#10;RMS&#10;Spectral Centroid&#10;Spectral Contrast&#10;Spectral Flatness&#10;Spectral Peaks&#10;Spectral Roll-off&#10;Strong Peak Ratio&#10;Zero Crossing Rate"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <SLIDER name="Dry/Wet" id="8e09b0af3f76a8b3" memberName="dry_wet" virtualName=""
           explicitFocusOrder="0" pos="76 528 76 70" bkgcol="ffff7c7c" thumbcol="ff88e1f2"
@@ -794,31 +788,31 @@ BEGIN_JUCER_METADATA
   <SLIDER name="Temperature" id="1845712d1d3cf57" memberName="temperature"
           virtualName="" explicitFocusOrder="0" pos="4 368 144 35" bkgcol="ffff7c7c"
           thumbcol="ff88e1f2" trackcol="ffff7c7c" textboxoutline="a0ffffff"
-          min="0.0" max="1.0" int="0.001" style="LinearHorizontal" textBoxPos="NoTextBox"
+          min="0.0" max="2.0" int="0.001" style="LinearHorizontal" textBoxPos="NoTextBox"
           textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="0"/>
   <LABEL name="new label" id="6536e42491d21318" memberName="label4" virtualName=""
-         explicitFocusOrder="0" pos="8 416 116 40" textCol="a0ff7c7c"
-         edTextCol="ff000000" edBkgCol="0" labelText="RELATIVE MATCHING"
+         explicitFocusOrder="0" pos="8 408 116 40" textCol="a0ff7c7c"
+         edTextCol="ff000000" edBkgCol="0" labelText="RELATIVE&#10;MATCHING"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Futura" fontsize="10.0" kerning="0.147" bold="0" italic="0"
+         fontname="Futura" fontsize="12.0" kerning="0.147" bold="0" italic="0"
          justification="34" typefaceStyle="Medium"/>
   <TOGGLEBUTTON name="Relative Matching" id="d38ba4cc76c46fef" memberName="relativeMatching"
-                virtualName="" explicitFocusOrder="0" pos="120 424 32 24" buttonText=""
+                virtualName="" explicitFocusOrder="0" pos="120 416 32 24" buttonText=""
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="1"/>
-  <COMBOBOX name="Feature #1" id="688c048f9bc8a0c" memberName="feature_4"
+  <COMBOBOX name="Window Type" id="688c048f9bc8a0c" memberName="window_type"
             virtualName="" explicitFocusOrder="0" pos="8 72 136 16" editable="0"
-            layout="33" items="Dissonance&#10;F0&#10;Inharmonicity&#10;MFCC&#10;Odd:even Harmonic Ratio&#10;Pitch Salience&#10;RMS&#10;Spectral Centroid&#10;Spectral Complexity&#10;Spectral Contrast&#10;Spectral Flatness&#10;Spectral Peaks&#10;Spectral Roll-off&#10;Strong Peak Ratio&#10;Zero Crossing Rate"
+            layout="33" items="Rectangular&#10;Triangular&#10;Hann&#10;Hamming"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
-  <SLIDER name="Dry/Wet" id="86d0a193389343f2" memberName="dry_wet2" virtualName=""
-          explicitFocusOrder="0" pos="0 528 76 70" bkgcol="ffff7c7c" thumbcol="ff88e1f2"
-          trackcol="ffff7c7c" rotarysliderfill="ffff7c7c" rotaryslideroutline="ffff7c7c"
-          min="0.0" max="1.0" int="0.01" style="RotaryHorizontalVerticalDrag"
-          textBoxPos="NoTextBox" textBoxEditable="1" textBoxWidth="80"
-          textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
+  <SLIDER name="LPF Cutoff" id="86d0a193389343f2" memberName="lpfCutoff"
+          virtualName="" explicitFocusOrder="0" pos="0 528 76 70" bkgcol="ffff7c7c"
+          thumbcol="ff88e1f2" trackcol="ffff7c7c" rotarysliderfill="ffff7c7c"
+          rotaryslideroutline="ffff7c7c" min="0.001" max="1.0" int="0.01"
+          style="RotaryHorizontalVerticalDrag" textBoxPos="NoTextBox" textBoxEditable="1"
+          textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <LABEL name="new label" id="b767e3ad4e932aa2" memberName="label5" virtualName=""
          explicitFocusOrder="0" pos="0 496 76 48" textCol="a0ff7c7c" edTextCol="ff000000"
-         edBkgCol="0" labelText="INPUT&#10;GAIN" editableSingleClick="0"
+         edBkgCol="0" labelText="LPF&#10;CUTOFF" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Futura"
          fontsize="14.8" kerning="0.147" bold="0" italic="0" justification="36"
          typefaceStyle="Medium"/>

@@ -56,13 +56,6 @@ void FeatureExtractorChain::addFeatureExtractor(
             break;
         }
 
-        case SpectralComplexity: {
-            auto feature =
-                std::make_unique<SpectralComplexityFeatureExtractor>();
-            features.add(std::move(feature));
-            break;
-        }
-
         case SpectralRollOff: {
             auto feature =
                 std::make_unique<SpectralRollOffFeatureExtractor>();
@@ -280,25 +273,6 @@ std::vector<e::Real> SpectralFlatnessFeatureExtractor::process(
     return std::vector<e::Real>{output};
 }
 
-SpectralComplexityFeatureExtractor::SpectralComplexityFeatureExtractor()
-    : algorithmFactory(es::AlgorithmFactory::instance())
-{
-    complexity.reset(algorithmFactory.create(
-        "SpectralComplexity"
-    ));
-}
-
-std::vector<e::Real> SpectralComplexityFeatureExtractor::process(
-    std::vector<e::Real>& fftInput)
-{
-    e::Real output;
-    complexity->input("spectrum").set(fftInput);
-    complexity->output("spectralComplexity").set(output);
-    complexity->compute();
-
-    return std::vector<e::Real>{output / (float)(fftInput.size())};
-}
-
 SpectralRollOffFeatureExtractor::SpectralRollOffFeatureExtractor()
     : algorithmFactory(es::AlgorithmFactory::instance())
 {
@@ -471,8 +445,6 @@ Feature getExtractorByString(String extractorName)
         return F0;
     else if (extractorName == "Spectral Flatness")
         return SpectralFlatness;
-    else if (extractorName == "Spectral Complexity")
-        return SpectralComplexity;
     else if (extractorName == "Spectral Roll-off")
         return SpectralRollOff;
     else if (extractorName == "Spectral Contrast")
