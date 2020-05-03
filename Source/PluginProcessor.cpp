@@ -253,10 +253,13 @@ void CatecophonyAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
             {
                 auto matchGain = dynamic_cast<AudioParameterBool*>(
                     params.getParameter("matchGain"))->get();
-                auto gainScale = matchGain ? workingGrain.getMagnitude() : 1.0f;
                 auto features = featureExtractorChain->process(&workingGrain);
                 auto* nearestGrain = corpus->findNearestStep(features);
                 auto** rawGrainBuffer = nearestGrain->getRawBuffer();
+                auto gainScale = matchGain
+                                ? workingGrain.getMagnitude()
+                                    / nearestGrain->getMagnitude()
+                                : 1.0f;
 
                 for (int i = 0; i < grainSize; i++)
                 {

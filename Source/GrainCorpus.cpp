@@ -35,9 +35,10 @@ GrainCorpus::GrainCorpus(
                 grainStart,
                 true,
                 true);
-
-            grains.add(
-                std::make_unique<Grain>(std::move(grainBuffer), window));
+            auto grain =
+                std::make_unique<Grain>(std::move(grainBuffer), window);
+            if (!grain->isSilent())
+                grains.add(std::move(grain));
         }
     }
 }
