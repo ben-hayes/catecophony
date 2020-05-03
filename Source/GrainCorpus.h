@@ -33,12 +33,6 @@ public:
     void analyse(
         FeatureExtractorChain* featureExtractors,
         std::function<void(float)> progressCallback);
-
-    static std::unique_ptr<GrainCorpus> makeCorpusFromAudioFileReaders(
-        Array<std::unique_ptr<AudioFormatReader>>&,
-        Window::WindowType window = Window::Hann,
-        int grainLength = 4096,
-        int hopSize = 2048);
     
     std::unique_ptr<Array<Array<float>>> get3DGrainCoords();
     Array<int> getMatchHistory();

@@ -21,7 +21,7 @@ GrainCorpus::GrainCorpus(
     {
         auto numGrains = 1 + static_cast<int>(
             floorf((reader->lengthInSamples - grainLength) / hopSize));
-        
+
         for (int i = 0; i < numGrains; i++)
         {
             auto grainStart = hopSize * i;
