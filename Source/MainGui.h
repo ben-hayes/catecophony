@@ -24,7 +24,6 @@
 
 #include <JuceHeader.h>
 
-#include "CorpusView.h"
 #include "FileDragAndDrop.h"
 #include "GrainView.h"
 #include "LoadingBar.h"
