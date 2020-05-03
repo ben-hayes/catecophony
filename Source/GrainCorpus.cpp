@@ -61,19 +61,9 @@ Grain* GrainCorpus::findNearestGrain(
         tempFeatures.add(shiftScale + eps);
     }
 
-    for (int i = 0; i < features.size(); i++)
-    {
-        auto distance = L2Distance(features[i], tempFeatures);
-        if (distance < shortestDistance || i == 0)
-        {
-            shortestDistance = distance;
-            nearestGrain = grains[i];
-            matchedIndex = i;
-        }
-        
-    }
-    matchHistory.add(matchedIndex);
-    return nearestGrain;
+    auto nearestIndex = searchTree->getNearestPoint(tempFeatures);
+    matchHistory.add(nearestIndex);
+    return grains[nearestIndex];
 }
 
 Grain* GrainCorpus::findNearestStep(
@@ -117,6 +107,8 @@ void GrainCorpus::analyse(
         progressCallback((float)i / grains.size());
     }
     normaliseFeatures();
+
+    searchTree = std::make_unique<KDSearchTree>(features);
 
     analysed = true;
 }

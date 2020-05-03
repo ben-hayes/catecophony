@@ -16,6 +16,7 @@
 
 #include "FeatureExtractors.h"
 #include "Grains.h"
+#include "KDSearchTree.h"
 
 class GrainCorpus
 {
@@ -47,6 +48,7 @@ public:
 private:
     OwnedArray<Grain> grains;
     Array<Array<float>> features;
+    std::unique_ptr<KDSearchTree> searchTree;
     Array<float> corpusMean;
     Array<float> corpusStd;
 
