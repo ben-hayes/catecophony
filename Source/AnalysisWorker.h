@@ -16,6 +16,7 @@
 #include "GrainCorpus.h"
 #include "PluginProcessor.h"
 
+class CatecophonyAudioProcessor;
 class AnalysisWorker : public Thread
 {
 public:

@@ -11,7 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "AnalysisWorker.h"
+
 #include "GrainCorpus.h"
 #include "MainGui.h"
 #include "PluginLookAndFeel.h"
@@ -38,8 +38,6 @@ private:
     CatecophonyAudioProcessor& processor;
     AudioProcessorValueTreeState& params;
 
-    std::unique_ptr<AnalysisWorker> worker;
-
     std::unique_ptr<MainGui> gui;
     PluginLookAndFeel skin;
 
@@ -47,10 +45,6 @@ private:
 
     void initialiseCorpusFromFilenames(const StringArray& files);
     void analyseCorpus();
-
-    int getSelectedGrainSize();
-    int getSelectedHopSize();
-    Array<Feature> getSelectedFeatures();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CatecophonyAudioProcessorEditor)
 };

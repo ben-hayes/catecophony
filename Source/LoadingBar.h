@@ -40,7 +40,11 @@ public:
         }
 
         auto progress = getProgress();
-        if (progress < 0.0f) return;
+        if (progress < 0.0f)
+        {
+            clearCallback();
+            return;
+        }
 
         auto loadingBarBounds = getLocalBounds().withSizeKeepingCentre(160, 40);
         g.setColour(Colour((0xa0 << 24) | (0xff << 16) | (0xff << 8) | (0xff)));

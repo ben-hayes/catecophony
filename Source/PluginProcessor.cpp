@@ -100,9 +100,9 @@ CatecophonyAudioProcessor::CatecophonyAudioProcessor()
                         "Zero Crossing Rate"
                     }),
                     11)    
-        })
+        }),
+        corpusFiles("CorpusFiles", {})
 {
-
     dryWet = params.getRawParameterValue("drywet");
 }
 
@@ -318,9 +318,12 @@ AudioProcessorEditor* CatecophonyAudioProcessor::createEditor()
 //==============================================================================
 void CatecophonyAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
+    ValueTree totalState("CatecophonyState");
     auto paramState = params.copyState();
-    std::unique_ptr<XmlElement> paramStateXml(paramState.createXml());
-    copyXmlToBinary(*paramStateXml, destData);
+    totalState.appendChild(paramState, nullptr);
+    totalState.appendChild(corpusFiles, nullptr);
+    std::unique_ptr<XmlElement> stateXml(totalState.createXml());
+    copyXmlToBinary(*stateXml, destData);
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
@@ -328,15 +331,22 @@ void CatecophonyAudioProcessor::getStateInformation (MemoryBlock& destData)
 
 void CatecophonyAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    std::unique_ptr<XmlElement> paramStateXml(
+    std::unique_ptr<XmlElement> totalStateXml(
         getXmlFromBinary(data, sizeInBytes));
     
-    if (paramStateXml.get() != nullptr)
+    if (totalStateXml.get() != nullptr)
     {
+        auto paramStateXml = totalStateXml->getChildElement(0);
         if (paramStateXml->hasTagName(params.state.getType()))
         {
             params.replaceState(ValueTree::fromXml(*paramStateXml));
         }
+
+        auto corpusFilesXml = totalStateXml->getChildElement(1);
+        corpusFiles.copyPropertiesAndChildrenFrom(
+            ValueTree::fromXml(*corpusFilesXml),
+            nullptr);
+        reloadCorpusFromValueTree();
     }
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
@@ -391,6 +401,53 @@ FeatureExtractorChain* CatecophonyAudioProcessor::getFeatureExtractorChain()
     return featureExtractorChain.get();
 }
 
+void CatecophonyAudioProcessor::initialiseCorpusFromFilenames(
+    const StringArray& files,
+    std::function<void()> finishedCallback)
+{
+    addFilenamesToValueTree(files);
+    auto workingGrainSize = getSelectedGrainSize();
+    auto workingHopSize = getSelectedHopSize();
+    auto workingFeatures = getSelectedFeatures();
+
+    worker.reset(
+        new AnalysisWorker(
+            *this,
+            files,
+            workingGrainSize,
+            workingHopSize,
+            workingFeatures,
+            finishedCallback));
+    worker->startThread(2);
+}
+
+void CatecophonyAudioProcessor::analyseCorpus(
+    std::function<void()> finishedCallback)
+{
+    if (state != ProcessorState::Ready)
+    {
+        return;
+    }
+
+    auto workingGrainSize = getSelectedGrainSize();
+    auto workingHopSize = getSelectedHopSize();
+    auto workingFeatures = getSelectedFeatures();
+
+    worker.reset(
+        new AnalysisWorker(
+            *this,
+            workingGrainSize,
+            workingHopSize,
+            workingFeatures,
+            finishedCallback));
+    worker->startThread(2);
+}
+
+float CatecophonyAudioProcessor::getWorkerProgress()
+{
+    return worker->getProgress();
+}
+
 void CatecophonyAudioProcessor::initialiseBuffers()
 {
     grainBuffer = new float*[2];
@@ -425,6 +482,84 @@ void CatecophonyAudioProcessor::initialiseBuffers()
             nextGrain[c][n] = 0.0f;
         }
     }
+}
+
+Array<Feature> CatecophonyAudioProcessor::getSelectedFeatures()
+{
+    Array<AudioParameterChoice*> featureParams;
+    featureParams.add(dynamic_cast<AudioParameterChoice*>(
+        params.getParameter("feature_1")));
+    featureParams.add(dynamic_cast<AudioParameterChoice*>(
+        params.getParameter("feature_2")));
+    featureParams.add(dynamic_cast<AudioParameterChoice*>(
+        params.getParameter("feature_3")));
+    StringArray addedFeatureNames;
+    
+    Array<Feature> features;
+
+    for (auto featureParam : featureParams)
+    {
+        auto featureName  = featureParam->getCurrentChoiceName();
+
+        bool skip = false;
+        for (auto& addedFeature : addedFeatureNames)
+            if (featureName == addedFeature)
+                skip = true;
+        if (skip) continue;
+
+        if (featureName != "None")
+        {
+            auto feature = getExtractorByString(featureName);
+            features.add(feature);
+            addedFeatureNames.add(featureName);
+        }
+    }
+
+    return features;
+}
+
+int CatecophonyAudioProcessor::getSelectedGrainSize()
+{
+    auto grainSizeParam = dynamic_cast<AudioParameterInt*>(
+        params.getParameter("grainSize"));
+    auto grainSize = (int)powf(2.0, *grainSizeParam + 1);
+
+    return grainSize;
+}
+
+int CatecophonyAudioProcessor::getSelectedHopSize()
+{
+    auto hopSizeParam = dynamic_cast<AudioParameterInt*>(
+        params.getParameter("hopSize"));
+    auto hopSize = (int)powf(2.0, *hopSizeParam + 1);
+
+    return hopSize;
+}
+
+void CatecophonyAudioProcessor::addFilenamesToValueTree(
+    const StringArray& files)
+{
+    ValueTree vt("CorpusFiles");
+
+    for (auto& file : files)
+    {
+        ValueTree fileTree("File");
+        fileTree.setProperty("path", file, nullptr);
+        vt.appendChild(fileTree, nullptr);
+    }
+
+    corpusFiles.copyPropertiesAndChildrenFrom(vt, nullptr);
+}
+
+void CatecophonyAudioProcessor::reloadCorpusFromValueTree()
+{
+    StringArray filePaths;
+    for (auto child : corpusFiles)
+    {
+        auto filePath = child.getProperty("path").toString();
+        filePaths.add(filePath);
+    }
+    initialiseCorpusFromFilenames(filePaths, [](){});
 }
 
 //==============================================================================

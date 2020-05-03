@@ -21,6 +21,11 @@ struct Point3D {
     float z;
 };
 
+enum class AnimationState {
+    NotRunning = 0,
+    Running
+};
+
 class GrainView    : public Component,
                      public Timer
 {
@@ -33,11 +38,16 @@ public:
 
     void timerCallback() override { repaint(); }
     void setGrainCoords(std::unique_ptr<Array<Array<float>>> newGrainCoords);
-    void stopAnimation() { hasGrainCoords = false; }
+    void stopAnimation() {
+         hasGrainCoords = false;
+         state = AnimationState::NotRunning; }
     void setMatchCallback(std::function<Array<int>()> matchCallback);
+
+    bool animationIsRunning();
 
 private:
     std::function<Array<int>()> matchCallback;
+    AnimationState state;
 
     bool hasGrainCoords = false;
     std::unique_ptr<Array<Array<float>>> grainCoords;

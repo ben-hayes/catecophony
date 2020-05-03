@@ -50,6 +50,35 @@ CatecophonyAudioProcessorEditor::CatecophonyAudioProcessorEditor (
             | (0x24 << 8)
             | (0x3d)
         ));
+
+    switch (processor.getState())
+    {
+        case ProcessorState::Ready: {
+            gui->startGrainAnimation(
+                processor.getCorpus()->get3DGrainCoords(),
+                [this](){
+                    return processor.getCorpus()->getMatchHistory();
+                });
+            break;
+        }
+        case ProcessorState::LoadingFiles: {
+            gui->startLoading([this](){
+                return processor.getWorkerProgress();
+            });
+            break;
+        }
+
+        case ProcessorState::Analysing: {
+            gui->startLoading([this](){
+                return processor.getWorkerProgress();
+            });
+            break;
+        }
+
+        case ProcessorState::NoCorpus: {
+            break;
+        }
+    } 
 }
 
 CatecophonyAudioProcessorEditor::~CatecophonyAudioProcessorEditor()
@@ -60,6 +89,15 @@ CatecophonyAudioProcessorEditor::~CatecophonyAudioProcessorEditor()
 //==============================================================================
 void CatecophonyAudioProcessorEditor::paint (Graphics& g)
 {
+    if (processor.getState() == ProcessorState::Ready
+        && !gui->animationIsRunning())
+    {
+        gui->startGrainAnimation(
+            processor.getCorpus()->get3DGrainCoords(),
+            [this](){
+                return processor.getCorpus()->getMatchHistory();
+            });
+    }
 }
 
 void CatecophonyAudioProcessorEditor::resized()
@@ -71,112 +109,35 @@ void CatecophonyAudioProcessorEditor::resized()
 void CatecophonyAudioProcessorEditor::initialiseCorpusFromFilenames(
     const StringArray& files)
 {
-    auto grainSize = getSelectedGrainSize();
-    auto hopSize = getSelectedHopSize();
-    auto features = getSelectedFeatures();
-
-    worker.reset(
-        new AnalysisWorker(
-            processor,
-            files,
-            grainSize,
-            hopSize,
-            features,
-            [this](){
-                gui->startGrainAnimation(
-                    processor.getCorpus()->get3DGrainCoords(),
-                    [this](){
-                        return processor.getCorpus()->getMatchHistory();
-                    });
-                gui->stopLoading();
-            }));
+    processor.initialiseCorpusFromFilenames(
+        files,
+        [this](){
+            gui->startGrainAnimation(
+                processor.getCorpus()->get3DGrainCoords(),
+                [this](){
+                    return processor.getCorpus()->getMatchHistory();
+                });
+            gui->stopLoading();
+        });
     gui->startLoading([this](){
-        return worker->getProgress();
+        return processor.getWorkerProgress();
     });
     gui->stopGrainAnimation();
-    worker->startThread(2);
 }
 
 void CatecophonyAudioProcessorEditor::analyseCorpus()
 {
-    if (processor.getState() != ProcessorState::Ready)
-    {
-        return;
-    }
-
-    auto grainSize = getSelectedGrainSize();
-    auto hopSize = getSelectedHopSize();
-    auto features = getSelectedFeatures();
-
-    worker.reset(
-        new AnalysisWorker(
-            processor,
-            grainSize,
-            hopSize,
-            features,
-            [this](){
-                gui->startGrainAnimation(
-                    processor.getCorpus()->get3DGrainCoords(),
-                    [this](){
-                        return processor.getCorpus()->getMatchHistory();
-                    });
-                gui->stopLoading();
-            }));
+    processor.analyseCorpus(
+        [this](){
+            gui->startGrainAnimation(
+                processor.getCorpus()->get3DGrainCoords(),
+                [this](){
+                    return processor.getCorpus()->getMatchHistory();
+                });
+            gui->stopLoading();
+        });
     gui->startLoading([this](){
-        return worker->getProgress();
+        return processor.getWorkerProgress();
     });
     gui->stopGrainAnimation();
-    worker->startThread(2);
-}
-
-Array<Feature> CatecophonyAudioProcessorEditor::getSelectedFeatures()
-{
-    Array<AudioParameterChoice*> featureParams;
-    featureParams.add(dynamic_cast<AudioParameterChoice*>(
-        params.getParameter("feature_1")));
-    featureParams.add(dynamic_cast<AudioParameterChoice*>(
-        params.getParameter("feature_2")));
-    featureParams.add(dynamic_cast<AudioParameterChoice*>(
-        params.getParameter("feature_3")));
-    StringArray addedFeatureNames;
-    
-    Array<Feature> features;
-
-    for (auto featureParam : featureParams)
-    {
-        auto featureName  = featureParam->getCurrentChoiceName();
-
-        bool skip = false;
-        for (auto& addedFeature : addedFeatureNames)
-            if (featureName == addedFeature)
-                skip = true;
-        if (skip) continue;
-
-        if (featureName != "None")
-        {
-            auto feature = getExtractorByString(featureName);
-            features.add(feature);
-            addedFeatureNames.add(featureName);
-        }
-    }
-
-    return features;
-}
-
-int CatecophonyAudioProcessorEditor::getSelectedGrainSize()
-{
-    auto grainSizeParam = dynamic_cast<AudioParameterInt*>(
-        params.getParameter("grainSize"));
-    auto grainSize = (int)powf(2.0, *grainSizeParam + 1);
-
-    return grainSize;
-}
-
-int CatecophonyAudioProcessorEditor::getSelectedHopSize()
-{
-    auto hopSizeParam = dynamic_cast<AudioParameterInt*>(
-        params.getParameter("hopSize"));
-    auto hopSize = (int)powf(2.0, *hopSizeParam + 1);
-
-    return hopSize;
 }

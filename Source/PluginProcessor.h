@@ -11,10 +11,13 @@
 #pragma once
 
 #include <JuceHeader.h>
+
+#include "AnalysisWorker.h"
 #include "FeatureExtractors.h"
 #include "Grains.h"
 #include "GrainCorpus.h"
 
+class AnalysisWorker;
 enum class ProcessorState
 {
     NoCorpus = 0,
@@ -86,11 +89,22 @@ public:
     void setFeatureExtractorChain(std::unique_ptr<FeatureExtractorChain>);
     FeatureExtractorChain* getFeatureExtractorChain();
 
+    void initialiseCorpusFromFilenames(
+        const StringArray& files,
+        std::function<void()> finishedCallback);
+    void analyseCorpus(std::function<void()> finishedCallback);
+
+    float getWorkerProgress();
+
 private:
     AudioProcessorValueTreeState params;
+    ValueTree corpusFiles;
+
     std::atomic<float>* dryWet;
     ProcessorState state = ProcessorState::NoCorpus;
     BufferState bufState = BufferState::NotInUse;
+
+    std::unique_ptr<AnalysisWorker> worker;
 
     size_t grainSize = 4096;
     size_t hopSize = 2048;
@@ -110,6 +124,12 @@ private:
     std::unique_ptr<FeatureExtractorChain> featureExtractorChain;
 
     void initialiseBuffers();
+    int getSelectedGrainSize();
+    int getSelectedHopSize();
+    Array<Feature> getSelectedFeatures();
+
+    void addFilenamesToValueTree(const StringArray& files);
+    void reloadCorpusFromValueTree();
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CatecophonyAudioProcessor)
     //==============================================================================

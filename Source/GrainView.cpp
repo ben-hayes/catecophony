@@ -13,7 +13,8 @@
 
 //==============================================================================
 GrainView::GrainView(int maxGrainsToShow)
-    : maxGrainsToShow(maxGrainsToShow)
+    : maxGrainsToShow(maxGrainsToShow),
+      state(AnimationState::NotRunning)
 {
     angleStep = 2.0f * M_PI * 0.1 * 0.0417;
     currentAngle = 0.0f;
@@ -28,7 +29,7 @@ GrainView::~GrainView()
 
 void GrainView::paint (Graphics& g)
 {
-    if (!hasGrainCoords) return;
+    if (!hasGrainCoords || state == AnimationState::NotRunning) return;
     auto w = getWidth();
     auto h = getHeight();
     for (auto idx : grainIndices)
@@ -43,7 +44,13 @@ void GrainView::paint (Graphics& g)
         if (coords.x < -1.5f
                 || coords.x > 1.5f
                 || coords.y < -1.5f
-                || coords.y > 1.5f)
+                || coords.y > 1.5f
+                || isnan(coords.x)
+                || isnan(coords.y)
+                || isnan(coords.z)
+                || isinf(coords.x)
+                || isinf(coords.y)
+                || isinf(coords.z))
             continue;
 
         auto diameter = 5 * (0.5f * coords.z + 0.5f) + 5;
@@ -108,11 +115,17 @@ void GrainView::setGrainCoords(
     hasGrainCoords = true;
     computeMeanAndStd();
     computeGrainIndices();
+    state = AnimationState::Running;
 }
 
 void GrainView::setMatchCallback(std::function<Array<int>()> matchCallback)
 {
     this->matchCallback = matchCallback;
+}
+
+bool GrainView::animationIsRunning()
+{
+    return state == AnimationState::Running;
 }
 
 void GrainView::computeMeanAndStd()

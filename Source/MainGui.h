@@ -62,6 +62,7 @@ public:
         std::unique_ptr<Array<Array<float>>> grains,
         std::function<Array<int>()> matchCallback);
     void stopGrainAnimation();
+    bool animationIsRunning();
     //[/UserMethods]
 
     void paint (Graphics& g) override;
@@ -93,13 +94,9 @@ private:
 
     //==============================================================================
     std::unique_ptr<LoadingBar> loading_bar;
-    std::unique_ptr<CorpusView> corpus_view;
     std::unique_ptr<ComboBox> feature_3;
     std::unique_ptr<ComboBox> feature_2;
     std::unique_ptr<ComboBox> feature_1;
-    std::unique_ptr<Slider> feature_1_weight;
-    std::unique_ptr<Slider> feature_2_weight;
-    std::unique_ptr<Slider> feature_3_weight;
     std::unique_ptr<Slider> dry_wet;
     std::unique_ptr<Label> label;
     std::unique_ptr<TextButton> analyse;
