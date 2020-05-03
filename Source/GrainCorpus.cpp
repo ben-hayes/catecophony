@@ -15,7 +15,8 @@ GrainCorpus::GrainCorpus(
     Window::WindowType window,
     size_t grainLength,
     size_t hopSize)
-    : grainLength(grainLength)
+    : grainLength(grainLength),
+      normalDist(0.0f, 1.0f)
 {
     for (auto& reader : readers)
     {
@@ -43,15 +44,26 @@ GrainCorpus::GrainCorpus(
     }
 }
 
-Grain* GrainCorpus::findNearestGrain(Array<float>& featuresToCompare)
+Grain* GrainCorpus::findNearestGrain(
+    Array<float>& featuresToCompare,
+    float temperature)
 {
     auto shortestDistance = 0.0f;
     Grain* nearestGrain;
     auto matchedIndex = 0;
 
+    Array<float> tempFeatures;
+    for (int i = 0; i < featuresToCompare.size(); i++)
+    {
+        auto shiftScale = 
+            (featuresToCompare[i] - corpusMean[i]) / corpusStd[i];
+        auto eps = normalDist(rng) * temperature;
+        tempFeatures.add(shiftScale + eps);
+    }
+
     for (int i = 0; i < features.size(); i++)
     {
-        auto distance = L2Distance(features[i], featuresToCompare);
+        auto distance = L2Distance(features[i], tempFeatures);
         if (distance < shortestDistance || i == 0)
         {
             shortestDistance = distance;
@@ -64,12 +76,14 @@ Grain* GrainCorpus::findNearestGrain(Array<float>& featuresToCompare)
     return nearestGrain;
 }
 
-Grain* GrainCorpus::findNearestStep(Array<float>& featuresToCompare)
+Grain* GrainCorpus::findNearestStep(
+    Array<float>& featuresToCompare,
+    float temperature)
 {
     if (startChainFromScratch)
     {
         startChainFromScratch = false;
-        return findNearestGrain(featuresToCompare);
+        return findNearestGrain(featuresToCompare, temperature);
     }
 
     Array<float> imaginaryFeatures;
@@ -81,7 +95,7 @@ Grain* GrainCorpus::findNearestStep(Array<float>& featuresToCompare)
             - lastFeatureInput[i]);
     }
 
-    return findNearestGrain(imaginaryFeatures);
+    return findNearestGrain(imaginaryFeatures, temperature);
 }
 
 void GrainCorpus::resetStepChain()
@@ -102,15 +116,7 @@ void GrainCorpus::analyse(
         i++;
         progressCallback((float)i / grains.size());
     }
-
-    for (auto& f : features)
-    {
-        for (auto& v : f)
-        {
-            std::cout<<v<<", ";
-        }
-        std::cout<<std::endl;
-    }
+    normaliseFeatures();
 
     analysed = true;
 }
@@ -131,4 +137,19 @@ Array<int> GrainCorpus::getMatchHistory()
 size_t GrainCorpus::getGrainLength()
 {
     return grainLength;
+}
+
+void GrainCorpus::normaliseFeatures()
+{
+    corpusMean = getFeatureMeans(features);
+    corpusStd = getFeatureStds(features, corpusMean);
+
+    for (auto& feature : features)
+    {
+        for (int i = 0; i < feature.size(); i++)
+        {
+            feature.setUnchecked(i, feature[i] - corpusMean[i]);
+            feature.setUnchecked(i, feature[i] / corpusStd[i]);
+        }
+    }
 }

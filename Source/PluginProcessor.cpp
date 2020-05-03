@@ -23,6 +23,9 @@ CatecophonyAudioProcessor::CatecophonyAudioProcessor()
                 std::make_unique<AudioParameterFloat>(
                     "drywet", "Dry/Wet",
                     0.0f, 1.0f, 1.0f),
+                std::make_unique<AudioParameterFloat>(
+                    "temperature", "Temperature",
+                    0.0f, 1.0f, 0.0f),
                 std::make_unique<AudioParameterInt>(
                     "grainSize", "Grain Size",
                     5, 13, 11, String(),
@@ -104,6 +107,7 @@ CatecophonyAudioProcessor::CatecophonyAudioProcessor()
         corpusFiles("CorpusFiles", {})
 {
     dryWet = params.getRawParameterValue("drywet");
+    temperature = params.getRawParameterValue("temperature");
 }
 
 CatecophonyAudioProcessor::~CatecophonyAudioProcessor()
@@ -254,7 +258,8 @@ void CatecophonyAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
                 auto matchGain = dynamic_cast<AudioParameterBool*>(
                     params.getParameter("matchGain"))->get();
                 auto features = featureExtractorChain->process(&workingGrain);
-                auto* nearestGrain = corpus->findNearestStep(features);
+                auto* nearestGrain =
+                    corpus->findNearestStep(features, *temperature);
                 auto** rawGrainBuffer = nearestGrain->getRawBuffer();
                 auto gainScale = matchGain
                                 ? workingGrain.getMagnitude()

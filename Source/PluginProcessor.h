@@ -101,6 +101,7 @@ private:
     ValueTree corpusFiles;
 
     std::atomic<float>* dryWet;
+    std::atomic<float>* temperature;
     ProcessorState state = ProcessorState::NoCorpus;
     BufferState bufState = BufferState::NotInUse;
 

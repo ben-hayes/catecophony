@@ -78,6 +78,8 @@ private:
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment>
         dryWetAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment>
+        temperatureAttachment;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment>
         grainSizeAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment>
         hopSizeAttachment;
@@ -92,6 +94,8 @@ private:
     //[/UserVariables]
 
     //==============================================================================
+    std::unique_ptr<Label> label3;
+    std::unique_ptr<Label> label2;
     std::unique_ptr<LoadingBar> loading_bar;
     std::unique_ptr<ComboBox> feature_3;
     std::unique_ptr<ComboBox> feature_2;
@@ -102,9 +106,14 @@ private:
     std::unique_ptr<Slider> grain_size;
     std::unique_ptr<Slider> hop_size;
     std::unique_ptr<ToggleButton> matchGain;
-    std::unique_ptr<Label> label2;
     std::unique_ptr<GrainView> grainView;
     std::unique_ptr<FileDragAndDrop> drag_and_drop;
+    std::unique_ptr<Slider> temperature;
+    std::unique_ptr<Label> label4;
+    std::unique_ptr<ToggleButton> relativeMatching;
+    std::unique_ptr<ComboBox> feature_4;
+    std::unique_ptr<Slider> dry_wet2;
+    std::unique_ptr<Label> label5;
 
 
     //==============================================================================

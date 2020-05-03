@@ -80,7 +80,13 @@ void GrainView::paint (Graphics& g)
         if (coords.x < -1.5f
                 || coords.x > 1.5f
                 || coords.y < -1.5f
-                || coords.y > 1.5f)
+                || coords.y > 1.5f
+                || isnan(coords.x)
+                || isnan(coords.y)
+                || isnan(coords.z)
+                || isinf(coords.x)
+                || isinf(coords.y)
+                || isinf(coords.z))
             continue;
 
         auto size = 8 * (0.5f * coords.z + 0.5f) + 8;

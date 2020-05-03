@@ -10,6 +10,7 @@
 
 #pragma once
 #include <functional>
+#include <random>
 
 #include <JuceHeader.h>
 
@@ -26,8 +27,12 @@ public:
         size_t hopSize = 2048);
     ~GrainCorpus() {}
 
-    Grain* findNearestGrain(Array<float>& featuresToCompare);
-    Grain* findNearestStep(Array<float>& featuresToCompare);
+    Grain* findNearestGrain(
+        Array<float>& featuresToCompare,
+        float temperature = 0.0f);
+    Grain* findNearestStep(
+        Array<float>& featuresToCompare,
+        float temperature = 0.0f);
     void resetStepChain();
 
     void analyse(
@@ -42,6 +47,11 @@ public:
 private:
     OwnedArray<Grain> grains;
     Array<Array<float>> features;
+    Array<float> corpusMean;
+    Array<float> corpusStd;
+
+    std::default_random_engine rng;
+    std::normal_distribution<float> normalDist;
 
     bool startChainFromScratch = true;
     Array<float> lastFeatureMatch;
@@ -50,4 +60,6 @@ private:
 
     size_t grainLength;
     bool analysed = false;
+
+    void normaliseFeatures();
 };

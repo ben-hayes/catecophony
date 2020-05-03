@@ -258,3 +258,8 @@ Feature getExtractorByString(String extractorName);
 std::unique_ptr<Array<Array<float>>> pcaReduce(
     Array<Array<float>>& grains,
     int nDims = 3);
+
+Array<float> getFeatureMeans(Array<Array<float>>& features);
+Array<float> getFeatureStds(
+    Array<Array<float>>& features,
+    Array<float>& means);

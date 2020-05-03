@@ -21,8 +21,6 @@
             file="Source/FileDragAndDrop.cpp"/>
       <FILE id="MJlsfc" name="FileDragAndDrop.h" compile="0" resource="0"
             file="Source/FileDragAndDrop.h"/>
-      <FILE id="apepSi" name="CorpusView.cpp" compile="1" resource="0" file="Source/CorpusView.cpp"/>
-      <FILE id="XYU9Wx" name="CorpusView.h" compile="0" resource="0" file="Source/CorpusView.h"/>
       <FILE id="rNHQmO" name="PluginLookAndFeel.cpp" compile="1" resource="0"
             file="Source/PluginLookAndFeel.cpp"/>
       <FILE id="VYKUNf" name="PluginLookAndFeel.h" compile="0" resource="0"

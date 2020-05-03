@@ -32,6 +32,30 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
+    label3.reset (new Label ("new label",
+                             TRANS("TEMPERATURE")));
+    addAndMakeVisible (label3.get());
+    label3->setFont (Font ("Futura", 14.20f, Font::plain).withTypefaceStyle ("Medium").withExtraKerningFactor (0.147f));
+    label3->setJustificationType (Justification::centredLeft);
+    label3->setEditable (false, false, false);
+    label3->setColour (Label::textColourId, Colour (0xa0ff7c7c));
+    label3->setColour (TextEditor::textColourId, Colours::black);
+    label3->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    label3->setBounds (8, 347, 132, 40);
+
+    label2.reset (new Label ("new label",
+                             TRANS("MATCH MAGNITUDE")));
+    addAndMakeVisible (label2.get());
+    label2->setFont (Font ("Futura", 10.00f, Font::plain).withTypefaceStyle ("Medium").withExtraKerningFactor (0.147f));
+    label2->setJustificationType (Justification::centredRight);
+    label2->setEditable (false, false, false);
+    label2->setColour (Label::textColourId, Colour (0xa0ff7c7c));
+    label2->setColour (TextEditor::textColourId, Colours::black);
+    label2->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    label2->setBounds (8, 440, 116, 40);
+
     loading_bar.reset (new LoadingBar());
     addAndMakeVisible (loading_bar.get());
     loading_bar->setName ("Loading Bar");
@@ -120,9 +144,14 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
     dry_wet->setRange (0, 1, 0.01);
     dry_wet->setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
     dry_wet->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
+    dry_wet->setColour (Slider::backgroundColourId, Colour (0xffff7c7c));
+    dry_wet->setColour (Slider::thumbColourId, Colour (0xff88e1f2));
+    dry_wet->setColour (Slider::trackColourId, Colour (0xffff7c7c));
+    dry_wet->setColour (Slider::rotarySliderFillColourId, Colour (0xffff7c7c));
+    dry_wet->setColour (Slider::rotarySliderOutlineColourId, Colour (0xffff7c7c));
     dry_wet->addListener (this);
 
-    dry_wet->setBounds (80, 528, 70, 72);
+    dry_wet->setBounds (76, 528, 76, 70);
 
     label.reset (new Label ("new label",
                             TRANS("DRY\n"
@@ -131,11 +160,11 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
     label->setFont (Font ("Futura", 14.80f, Font::plain).withTypefaceStyle ("Medium").withExtraKerningFactor (0.147f));
     label->setJustificationType (Justification::centred);
     label->setEditable (false, false, false);
-    label->setColour (Label::textColourId, Colour (0xa0ffffff));
+    label->setColour (Label::textColourId, Colour (0xa0ff7c7c));
     label->setColour (TextEditor::textColourId, Colours::black);
     label->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    label->setBounds (80, 496, 70, 48);
+    label->setBounds (76, 496, 76, 48);
 
     analyse.reset (new TextButton ("Analyse Corpus"));
     addAndMakeVisible (analyse.get());
@@ -153,7 +182,7 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
     grain_size->addListener (this);
     grain_size->setSkewFactor (2);
 
-    grain_size->setBounds (8, 144, 64, 16);
+    grain_size->setBounds (8, 136, 64, 16);
 
     hop_size.reset (new Slider ("Hop Size"));
     addAndMakeVisible (hop_size.get());
@@ -164,26 +193,15 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
     hop_size->addListener (this);
     hop_size->setSkewFactor (2);
 
-    hop_size->setBounds (80, 144, 64, 16);
+    hop_size->setBounds (80, 136, 64, 16);
 
     matchGain.reset (new ToggleButton ("Match Grain Magnitude"));
     addAndMakeVisible (matchGain.get());
     matchGain->setButtonText (String());
     matchGain->addListener (this);
+    matchGain->setToggleState (true, dontSendNotification);
 
-    matchGain->setBounds (112, 332, 32, 32);
-
-    label2.reset (new Label ("new label",
-                             TRANS("MATCH GRAIN MAGNITUDE")));
-    addAndMakeVisible (label2.get());
-    label2->setFont (Font ("Futura", 14.80f, Font::plain).withTypefaceStyle ("Medium").withExtraKerningFactor (0.147f));
-    label2->setJustificationType (Justification::centredRight);
-    label2->setEditable (false, false, false);
-    label2->setColour (Label::textColourId, Colour (0xa0ffffff));
-    label2->setColour (TextEditor::textColourId, Colours::black);
-    label2->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-
-    label2->setBounds (-8, 328, 124, 40);
+    matchGain->setBounds (120, 448, 32, 24);
 
     grainView.reset (new GrainView());
     addAndMakeVisible (grainView.get());
@@ -197,6 +215,90 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
 
     drag_and_drop->setBounds (152, 0, 648, 600);
 
+    temperature.reset (new Slider ("Temperature"));
+    addAndMakeVisible (temperature.get());
+    temperature->setRange (0, 1, 0.001);
+    temperature->setSliderStyle (Slider::LinearHorizontal);
+    temperature->setTextBoxStyle (Slider::NoTextBox, true, 80, 20);
+    temperature->setColour (Slider::backgroundColourId, Colour (0xffff7c7c));
+    temperature->setColour (Slider::thumbColourId, Colour (0xff88e1f2));
+    temperature->setColour (Slider::trackColourId, Colour (0xffff7c7c));
+    temperature->setColour (Slider::textBoxOutlineColourId, Colour (0xa0ffffff));
+
+    temperature->setBounds (4, 368, 144, 35);
+
+    label4.reset (new Label ("new label",
+                             TRANS("RELATIVE MATCHING")));
+    addAndMakeVisible (label4.get());
+    label4->setFont (Font ("Futura", 10.00f, Font::plain).withTypefaceStyle ("Medium").withExtraKerningFactor (0.147f));
+    label4->setJustificationType (Justification::centredRight);
+    label4->setEditable (false, false, false);
+    label4->setColour (Label::textColourId, Colour (0xa0ff7c7c));
+    label4->setColour (TextEditor::textColourId, Colours::black);
+    label4->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    label4->setBounds (8, 416, 116, 40);
+
+    relativeMatching.reset (new ToggleButton ("Relative Matching"));
+    addAndMakeVisible (relativeMatching.get());
+    relativeMatching->setButtonText (String());
+    relativeMatching->addListener (this);
+    relativeMatching->setToggleState (true, dontSendNotification);
+
+    relativeMatching->setBounds (120, 424, 32, 24);
+
+    feature_4.reset (new ComboBox ("Feature #1"));
+    addAndMakeVisible (feature_4.get());
+    feature_4->setEditableText (false);
+    feature_4->setJustificationType (Justification::centredLeft);
+    feature_4->setTextWhenNothingSelected (String());
+    feature_4->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    feature_4->addItem (TRANS("Dissonance"), 1);
+    feature_4->addItem (TRANS("F0"), 2);
+    feature_4->addItem (TRANS("Inharmonicity"), 3);
+    feature_4->addItem (TRANS("MFCC"), 4);
+    feature_4->addItem (TRANS("Odd:even Harmonic Ratio"), 5);
+    feature_4->addItem (TRANS("Pitch Salience"), 6);
+    feature_4->addItem (TRANS("RMS"), 7);
+    feature_4->addItem (TRANS("Spectral Centroid"), 8);
+    feature_4->addItem (TRANS("Spectral Complexity"), 9);
+    feature_4->addItem (TRANS("Spectral Contrast"), 10);
+    feature_4->addItem (TRANS("Spectral Flatness"), 11);
+    feature_4->addItem (TRANS("Spectral Peaks"), 12);
+    feature_4->addItem (TRANS("Spectral Roll-off"), 13);
+    feature_4->addItem (TRANS("Strong Peak Ratio"), 14);
+    feature_4->addItem (TRANS("Zero Crossing Rate"), 15);
+    feature_4->addListener (this);
+
+    feature_4->setBounds (8, 72, 136, 16);
+
+    dry_wet2.reset (new Slider ("Dry/Wet"));
+    addAndMakeVisible (dry_wet2.get());
+    dry_wet2->setRange (0, 1, 0.01);
+    dry_wet2->setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
+    dry_wet2->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
+    dry_wet2->setColour (Slider::backgroundColourId, Colour (0xffff7c7c));
+    dry_wet2->setColour (Slider::thumbColourId, Colour (0xff88e1f2));
+    dry_wet2->setColour (Slider::trackColourId, Colour (0xffff7c7c));
+    dry_wet2->setColour (Slider::rotarySliderFillColourId, Colour (0xffff7c7c));
+    dry_wet2->setColour (Slider::rotarySliderOutlineColourId, Colour (0xffff7c7c));
+    dry_wet2->addListener (this);
+
+    dry_wet2->setBounds (0, 528, 76, 70);
+
+    label5.reset (new Label ("new label",
+                             TRANS("INPUT\n"
+                             "GAIN")));
+    addAndMakeVisible (label5.get());
+    label5->setFont (Font ("Futura", 14.80f, Font::plain).withTypefaceStyle ("Medium").withExtraKerningFactor (0.147f));
+    label5->setJustificationType (Justification::centred);
+    label5->setEditable (false, false, false);
+    label5->setColour (Label::textColourId, Colour (0xa0ff7c7c));
+    label5->setColour (TextEditor::textColourId, Colours::black);
+    label5->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    label5->setBounds (0, 496, 76, 48);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -209,6 +311,11 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
         v,
         "drywet",
         *dry_wet));
+    temperatureAttachment.reset(
+        new AudioProcessorValueTreeState::SliderAttachment(
+            v,
+            "temperature",
+            *temperature));
     grainSizeAttachment.reset(
         new AudioProcessorValueTreeState::SliderAttachment(
             v,
@@ -253,6 +360,7 @@ MainGui::~MainGui()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
     dryWetAttachment = nullptr;
+    temperatureAttachment = nullptr;
     grainSizeAttachment = nullptr;
     hopSizeAttachment = nullptr;
     feature_1Attachment = nullptr;
@@ -261,6 +369,8 @@ MainGui::~MainGui()
     matchGainAttachment = nullptr;
     //[/Destructor_pre]
 
+    label3 = nullptr;
+    label2 = nullptr;
     loading_bar = nullptr;
     feature_3 = nullptr;
     feature_2 = nullptr;
@@ -271,9 +381,14 @@ MainGui::~MainGui()
     grain_size = nullptr;
     hop_size = nullptr;
     matchGain = nullptr;
-    label2 = nullptr;
     grainView = nullptr;
     drag_and_drop = nullptr;
+    temperature = nullptr;
+    label4 = nullptr;
+    relativeMatching = nullptr;
+    feature_4 = nullptr;
+    dry_wet2 = nullptr;
+    label5 = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -367,7 +482,7 @@ void MainGui::paint (Graphics& g)
     }
 
     {
-        int x = 8, y = 108, width = 96, height = 20;
+        int x = 8, y = 100, width = 96, height = 20;
         String text (TRANS("GRAIN"));
         Colour fillColour = Colour (0xa0ffffff);
         //[UserPaintCustomArguments] Customize the painting arguments here..
@@ -379,7 +494,7 @@ void MainGui::paint (Graphics& g)
     }
 
     {
-        int x = 8, y = 124, width = 96, height = 20;
+        int x = 8, y = 116, width = 96, height = 20;
         String text (TRANS("SIZE"));
         Colour fillColour = Colour (0xa0ffffff);
         //[UserPaintCustomArguments] Customize the painting arguments here..
@@ -391,7 +506,7 @@ void MainGui::paint (Graphics& g)
     }
 
     {
-        int x = 80, y = 108, width = 96, height = 20;
+        int x = 80, y = 100, width = 96, height = 20;
         String text (TRANS("HOP"));
         Colour fillColour = Colour (0xa0ffffff);
         //[UserPaintCustomArguments] Customize the painting arguments here..
@@ -403,8 +518,20 @@ void MainGui::paint (Graphics& g)
     }
 
     {
-        int x = 80, y = 124, width = 96, height = 20;
+        int x = 80, y = 116, width = 96, height = 20;
         String text (TRANS("SIZE"));
+        Colour fillColour = Colour (0xa0ffffff);
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.setFont (Font ("Futura", 14.80f, Font::plain).withTypefaceStyle ("Medium").withExtraKerningFactor (0.147f));
+        g.drawText (text, x, y, width, height,
+                    Justification::topLeft, true);
+    }
+
+    {
+        int x = 8, y = 56, width = 208, height = 30;
+        String text (TRANS("WINDOW TYPE"));
         Colour fillColour = Colour (0xa0ffffff);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
@@ -447,6 +574,11 @@ void MainGui::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         //[UserComboBoxCode_feature_1] -- add your combo box handling code here..
         //[/UserComboBoxCode_feature_1]
     }
+    else if (comboBoxThatHasChanged == feature_4.get())
+    {
+        //[UserComboBoxCode_feature_4] -- add your combo box handling code here..
+        //[/UserComboBoxCode_feature_4]
+    }
 
     //[UsercomboBoxChanged_Post]
     //[/UsercomboBoxChanged_Post]
@@ -472,6 +604,11 @@ void MainGui::sliderValueChanged (Slider* sliderThatWasMoved)
         //[UserSliderCode_hop_size] -- add your slider handling code here..
         //[/UserSliderCode_hop_size]
     }
+    else if (sliderThatWasMoved == dry_wet2.get())
+    {
+        //[UserSliderCode_dry_wet2] -- add your slider handling code here..
+        //[/UserSliderCode_dry_wet2]
+    }
 
     //[UsersliderValueChanged_Post]
     //[/UsersliderValueChanged_Post]
@@ -491,6 +628,11 @@ void MainGui::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_matchGain] -- add your button handler code here..
         //[/UserButtonCode_matchGain]
+    }
+    else if (buttonThatWasClicked == relativeMatching.get())
+    {
+        //[UserButtonCode_relativeMatching] -- add your button handler code here..
+        //[/UserButtonCode_relativeMatching]
     }
 
     //[UserbuttonClicked_Post]
@@ -572,19 +714,34 @@ BEGIN_JUCER_METADATA
     <TEXT pos="304 570 496 30" fill="solid: ffffffff" hasStroke="0" text="C A T E C O P H O N Y"
           fontname="Futura" fontsize="24.1" kerning="0.309" bold="0" italic="0"
           justification="10" typefaceStyle="Medium"/>
-    <TEXT pos="8 108 96 20" fill="solid: a0ffffff" hasStroke="0" text="GRAIN"
+    <TEXT pos="8 100 96 20" fill="solid: a0ffffff" hasStroke="0" text="GRAIN"
           fontname="Futura" fontsize="14.8" kerning="0.147" bold="0" italic="0"
           justification="9" typefaceStyle="Medium"/>
-    <TEXT pos="8 124 96 20" fill="solid: a0ffffff" hasStroke="0" text="SIZE"
+    <TEXT pos="8 116 96 20" fill="solid: a0ffffff" hasStroke="0" text="SIZE"
           fontname="Futura" fontsize="14.8" kerning="0.147" bold="0" italic="0"
           justification="9" typefaceStyle="Medium"/>
-    <TEXT pos="80 108 96 20" fill="solid: a0ffffff" hasStroke="0" text="HOP"
+    <TEXT pos="80 100 96 20" fill="solid: a0ffffff" hasStroke="0" text="HOP"
           fontname="Futura" fontsize="14.8" kerning="0.147" bold="0" italic="0"
           justification="9" typefaceStyle="Medium"/>
-    <TEXT pos="80 124 96 20" fill="solid: a0ffffff" hasStroke="0" text="SIZE"
+    <TEXT pos="80 116 96 20" fill="solid: a0ffffff" hasStroke="0" text="SIZE"
+          fontname="Futura" fontsize="14.8" kerning="0.147" bold="0" italic="0"
+          justification="9" typefaceStyle="Medium"/>
+    <TEXT pos="8 56 208 30" fill="solid: a0ffffff" hasStroke="0" text="WINDOW TYPE"
           fontname="Futura" fontsize="14.8" kerning="0.147" bold="0" italic="0"
           justification="9" typefaceStyle="Medium"/>
   </BACKGROUND>
+  <LABEL name="new label" id="a63405fa3a1ec26f" memberName="label3" virtualName=""
+         explicitFocusOrder="0" pos="8 347 132 40" textCol="a0ff7c7c"
+         edTextCol="ff000000" edBkgCol="0" labelText="TEMPERATURE" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Futura"
+         fontsize="14.2" kerning="0.147" bold="0" italic="0" justification="33"
+         typefaceStyle="Medium"/>
+  <LABEL name="new label" id="71b54d4267d6b770" memberName="label2" virtualName=""
+         explicitFocusOrder="0" pos="8 440 116 40" textCol="a0ff7c7c"
+         edTextCol="ff000000" edBkgCol="0" labelText="MATCH MAGNITUDE"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Futura" fontsize="10.0" kerning="0.147" bold="0" italic="0"
+         justification="34" typefaceStyle="Medium"/>
   <GENERICCOMPONENT name="Loading Bar" id="431af9247eeb453f" memberName="loading_bar"
                     virtualName="" explicitFocusOrder="0" pos="152 0 648 600" class="LoadingBar"
                     params=""/>
@@ -601,12 +758,13 @@ BEGIN_JUCER_METADATA
             layout="33" items="Dissonance&#10;F0&#10;Inharmonicity&#10;MFCC&#10;Odd:even Harmonic Ratio&#10;Pitch Salience&#10;RMS&#10;Spectral Centroid&#10;Spectral Complexity&#10;Spectral Contrast&#10;Spectral Flatness&#10;Spectral Peaks&#10;Spectral Roll-off&#10;Strong Peak Ratio&#10;Zero Crossing Rate"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <SLIDER name="Dry/Wet" id="8e09b0af3f76a8b3" memberName="dry_wet" virtualName=""
-          explicitFocusOrder="0" pos="80 528 70 72" min="0.0" max="1.0"
-          int="0.01" style="RotaryHorizontalVerticalDrag" textBoxPos="NoTextBox"
-          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
-          needsCallback="1"/>
+          explicitFocusOrder="0" pos="76 528 76 70" bkgcol="ffff7c7c" thumbcol="ff88e1f2"
+          trackcol="ffff7c7c" rotarysliderfill="ffff7c7c" rotaryslideroutline="ffff7c7c"
+          min="0.0" max="1.0" int="0.01" style="RotaryHorizontalVerticalDrag"
+          textBoxPos="NoTextBox" textBoxEditable="1" textBoxWidth="80"
+          textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <LABEL name="new label" id="94d65f788b8c0e12" memberName="label" virtualName=""
-         explicitFocusOrder="0" pos="80 496 70 48" textCol="a0ffffff"
+         explicitFocusOrder="0" pos="76 496 76 48" textCol="a0ff7c7c"
          edTextCol="ff000000" edBkgCol="0" labelText="DRY&#10;WET" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Futura"
          fontsize="14.8" kerning="0.147" bold="0" italic="0" justification="36"
@@ -615,30 +773,55 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="8 264 136 24" buttonText="Analyse Corpus"
               connectedEdges="15" needsCallback="1" radioGroupId="0"/>
   <SLIDER name="Grain Size" id="b273822197bc6200" memberName="grain_size"
-          virtualName="" explicitFocusOrder="0" pos="8 144 64 16" textboxoutline="a0ffffff"
+          virtualName="" explicitFocusOrder="0" pos="8 136 64 16" textboxoutline="a0ffffff"
           min="5.0" max="13.0" int="1.0" style="LinearBar" textBoxPos="TextBoxLeft"
           textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="2.0"
           needsCallback="1"/>
   <SLIDER name="Hop Size" id="ae573407cf541b0c" memberName="hop_size" virtualName=""
-          explicitFocusOrder="0" pos="80 144 64 16" textboxoutline="a0ffffff"
+          explicitFocusOrder="0" pos="80 136 64 16" textboxoutline="a0ffffff"
           min="4.0" max="12.0" int="1.0" style="LinearBar" textBoxPos="TextBoxLeft"
           textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="2.0"
           needsCallback="1"/>
   <TOGGLEBUTTON name="Match Grain Magnitude" id="857c68940a60714d" memberName="matchGain"
-                virtualName="" explicitFocusOrder="0" pos="112 332 32 32" buttonText=""
-                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
-  <LABEL name="new label" id="71b54d4267d6b770" memberName="label2" virtualName=""
-         explicitFocusOrder="0" pos="-8 328 124 40" textCol="a0ffffff"
-         edTextCol="ff000000" edBkgCol="0" labelText="MATCH GRAIN MAGNITUDE"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Futura" fontsize="14.8" kerning="0.147" bold="0" italic="0"
-         justification="34" typefaceStyle="Medium"/>
+                virtualName="" explicitFocusOrder="0" pos="120 448 32 24" buttonText=""
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="1"/>
   <GENERICCOMPONENT name="Grain View" id="11e7996b86a6f61d" memberName="grainView"
                     virtualName="" explicitFocusOrder="0" pos="152 0 648 600" class="GrainView"
                     params=""/>
   <GENERICCOMPONENT name="Drag And Drop" id="4553fb37de056e3b" memberName="drag_and_drop"
                     virtualName="" explicitFocusOrder="0" pos="152 0 648 600" class="FileDragAndDrop"
                     params="std::move(fileFilter)"/>
+  <SLIDER name="Temperature" id="1845712d1d3cf57" memberName="temperature"
+          virtualName="" explicitFocusOrder="0" pos="4 368 144 35" bkgcol="ffff7c7c"
+          thumbcol="ff88e1f2" trackcol="ffff7c7c" textboxoutline="a0ffffff"
+          min="0.0" max="1.0" int="0.001" style="LinearHorizontal" textBoxPos="NoTextBox"
+          textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="0"/>
+  <LABEL name="new label" id="6536e42491d21318" memberName="label4" virtualName=""
+         explicitFocusOrder="0" pos="8 416 116 40" textCol="a0ff7c7c"
+         edTextCol="ff000000" edBkgCol="0" labelText="RELATIVE MATCHING"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Futura" fontsize="10.0" kerning="0.147" bold="0" italic="0"
+         justification="34" typefaceStyle="Medium"/>
+  <TOGGLEBUTTON name="Relative Matching" id="d38ba4cc76c46fef" memberName="relativeMatching"
+                virtualName="" explicitFocusOrder="0" pos="120 424 32 24" buttonText=""
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="1"/>
+  <COMBOBOX name="Feature #1" id="688c048f9bc8a0c" memberName="feature_4"
+            virtualName="" explicitFocusOrder="0" pos="8 72 136 16" editable="0"
+            layout="33" items="Dissonance&#10;F0&#10;Inharmonicity&#10;MFCC&#10;Odd:even Harmonic Ratio&#10;Pitch Salience&#10;RMS&#10;Spectral Centroid&#10;Spectral Complexity&#10;Spectral Contrast&#10;Spectral Flatness&#10;Spectral Peaks&#10;Spectral Roll-off&#10;Strong Peak Ratio&#10;Zero Crossing Rate"
+            textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+  <SLIDER name="Dry/Wet" id="86d0a193389343f2" memberName="dry_wet2" virtualName=""
+          explicitFocusOrder="0" pos="0 528 76 70" bkgcol="ffff7c7c" thumbcol="ff88e1f2"
+          trackcol="ffff7c7c" rotarysliderfill="ffff7c7c" rotaryslideroutline="ffff7c7c"
+          min="0.0" max="1.0" int="0.01" style="RotaryHorizontalVerticalDrag"
+          textBoxPos="NoTextBox" textBoxEditable="1" textBoxWidth="80"
+          textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
+  <LABEL name="new label" id="b767e3ad4e932aa2" memberName="label5" virtualName=""
+         explicitFocusOrder="0" pos="0 496 76 48" textCol="a0ff7c7c" edTextCol="ff000000"
+         edBkgCol="0" labelText="INPUT&#10;GAIN" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Futura"
+         fontsize="14.8" kerning="0.147" bold="0" italic="0" justification="36"
+         typefaceStyle="Medium"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

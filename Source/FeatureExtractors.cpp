@@ -541,3 +541,48 @@ std::unique_ptr<Array<Array<float>>> pcaReduce(
     }
     return std::move(out);
 }
+
+Array<float> getFeatureMeans(Array<Array<float>>& features)
+{
+    Array<float> runningMeans;
+    for (int i = 0; i < features[0].size(); i++) runningMeans.add(0.0f);
+
+    for (auto& feature : features)
+    {
+        for (int i = 0; i < feature.size(); i++)
+        {
+            runningMeans.setUnchecked(i, runningMeans[i] + feature[i]);
+        }
+    }
+
+    for (int i = 0; i < features[0].size(); i++)
+        runningMeans.setUnchecked(i, runningMeans[i] / features.size());
+    
+    return runningMeans;
+}
+
+Array<float> getFeatureStds(
+    Array<Array<float>>& features,
+    Array<float>& means)
+{
+    Array<float> runningStds;
+    for (int i = 0; i < features[0].size(); i++) runningStds.add(0.0f);
+
+    for (auto& feature : features)
+    {
+        for (int i = 0; i < feature.size(); i++)
+        {
+            runningStds.setUnchecked(
+                i,
+                runningStds[i] + powf(feature[i] - means[i], 2.0f));
+        }
+    }
+
+    for (int i = 0; i < features[0].size(); i++)
+    {
+        runningStds.setUnchecked(i, runningStds[i] / features.size());
+        runningStds.setUnchecked(i, sqrtf(runningStds[i]));
+    }
+    
+    return runningStds;
+}
