@@ -99,6 +99,11 @@ void CatecophonyAudioProcessorEditor::initialiseCorpusFromFilenames(
 
 void CatecophonyAudioProcessorEditor::analyseCorpus()
 {
+    if (processor.getState() != ProcessorState::Ready)
+    {
+        return;
+    }
+
     auto grainSize = getSelectedGrainSize();
     auto hopSize = getSelectedHopSize();
     auto features = getSelectedFeatures();
