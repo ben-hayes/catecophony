@@ -136,7 +136,7 @@ std::vector<e::Real> FeatureExtractorChain::process(
 
         for (auto value : computedFeatures)
         {
-            allFeatures.push_back(isnan(value) ? 0.0f : value);
+            allFeatures.push_back(isnan(value) || isinf(value) ? 0.0f : value);
         }
     }
 
@@ -322,8 +322,7 @@ SpectralContrastFeatureExtractor::SpectralContrastFeatureExtractor()
     : algorithmFactory(es::AlgorithmFactory::instance())
 {
     contrast.reset(algorithmFactory.create(
-        "SpectralContrast",
-        "numberBands", 4
+        "SpectralContrast"
     ));
 }
 
@@ -332,12 +331,26 @@ std::vector<e::Real> SpectralContrastFeatureExtractor::process(
 {
     std::vector<e::Real> spectralContrast;
     std::vector<e::Real> spectralValley;
+
+    e::ParameterMap pm;
+    e::Parameter numberBands(4);
+    e::Parameter frameSize(int((fftInput.size() - 1) * 2));
+    pm.add("numberBands", numberBands);
+    pm.add("frameSize", frameSize);
+    contrast->configure(pm);
+
     contrast->input("spectrum").set(fftInput);
     contrast->output("spectralContrast").set(spectralContrast);
     contrast->output("spectralValley").set(spectralValley);
     contrast->compute();
 
-    return spectralContrast;
+    std::vector<e::Real> out;
+    for (auto val : spectralContrast)
+    {
+        out.push_back(expf(val));
+    }
+
+    return out;
 }
 
 SpectralPeaksFeatureExtractor::SpectralPeaksFeatureExtractor()
