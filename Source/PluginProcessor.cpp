@@ -18,7 +18,7 @@ CatecophonyAudioProcessor::CatecophonyAudioProcessor()
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                        ),
         grainBufferWritePointer(0),
-        outputBufferReadPointer(MAX_BUFFER_SIZE - hopSize),
+        outputBufferReadPointer(0),
         params(*this, nullptr, "Catecophony", {
                 std::make_unique<AudioParameterFloat>(
                     "drywet", "Dry/Wet",
@@ -229,7 +229,7 @@ void CatecophonyAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
         }
 
         grainBufferWritePointer += 1;
-        if (grainBufferWritePointer >= MAX_BUFFER_SIZE)
+        if (grainBufferWritePointer >= grainSize)
         {
             grainBufferWritePointer = 0;
         }
@@ -243,10 +243,7 @@ void CatecophonyAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
                 for (int c = 0; c < 2; c++)
                 {
                     nextGrain[c][i] = grainBuffer[c][
-                        (grainBufferWritePointer 
-                        + MAX_BUFFER_SIZE 
-                        - grainSize 
-                        + i) % MAX_BUFFER_SIZE];
+                        (grainBufferWritePointer + i) % grainSize];
                 }
             }
 
@@ -265,9 +262,9 @@ void CatecophonyAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
                 {
                     for (int c = 0; c < 2; c++)
                     {
-                        outputBuffer[c][
-                            (outputBufferWritePointer + i) % MAX_BUFFER_SIZE] += 
-                                rawGrainBuffer[c][i] * gainScale;
+                        outputBuffer[c][(outputBufferWritePointer + i)
+                                        % (grainSize + hopSize)]
+                            += rawGrainBuffer[c][i] * gainScale;
                     }
                 }
             } else
@@ -276,10 +273,10 @@ void CatecophonyAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
             }
 
             outputBufferWritePointer += hopSize;
-            if (outputBufferWritePointer >= MAX_BUFFER_SIZE)
+            if (outputBufferWritePointer >= grainSize + hopSize)
             {
                 outputBufferWritePointer =
-                    outputBufferWritePointer % MAX_BUFFER_SIZE;
+                    outputBufferWritePointer % (grainSize + hopSize);
             }
         }
 
@@ -296,7 +293,7 @@ void CatecophonyAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
         }
 
         outputBufferReadPointer += 1;
-        if (outputBufferReadPointer >= MAX_BUFFER_SIZE)
+        if (outputBufferReadPointer >= (grainSize + hopSize))
         {
             outputBufferReadPointer = 0;
         }
@@ -380,10 +377,37 @@ FeatureExtractorChain* CatecophonyAudioProcessor::getFeatureExtractorChain()
 
 void CatecophonyAudioProcessor::initialiseBuffers()
 {
+    grainBuffer = new float*[2];
+    for (int c = 0; c < 2; c++)
+    {
+        grainBuffer[c] = new float[grainSize];
+        for (int n = 0; n < grainSize; n++)
+        {
+            grainBuffer[c][n] = 0.0f;
+        }
+    }
+    grainBufferWritePointer = 0;
+
+    outputBuffer = new float*[2];
+    for (int c = 0; c < 2; c++)
+    {
+        outputBuffer[c] = new float[grainSize + hopSize];
+        for (int n = 0; n < grainSize + hopSize; n++)
+        {
+            outputBuffer[c][n] = 0.0f;
+        }
+    }
+    outputBufferReadPointer = grainSize;
+    outputBufferWritePointer = 0;
+
     nextGrain = new float*[2];
     for (int c = 0; c < 2; c++)
     {
         nextGrain[c] = new float[grainSize];
+        for (int n = 0; n < grainSize; n++)
+        {
+            nextGrain[c][n] = 0.0f;
+        }
     }
 }
 

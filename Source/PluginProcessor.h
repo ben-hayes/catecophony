@@ -9,7 +9,6 @@
 */
 
 #pragma once
-#define MAX_BUFFER_SIZE 65356
 
 #include <JuceHeader.h>
 #include "FeatureExtractors.h"
@@ -97,11 +96,11 @@ private:
     size_t hopSize = 2048;
     int hopCounter = 0;
 
-    float grainBuffer[2][MAX_BUFFER_SIZE];
+    float** grainBuffer;
     float** nextGrain;
     Grain workingGrain;
 
-    float outputBuffer[2][MAX_BUFFER_SIZE];
+    float** outputBuffer;
     int outputBufferReadPointer = 0;
     int outputBufferWritePointer = 0;
 
