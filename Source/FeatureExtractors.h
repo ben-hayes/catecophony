@@ -12,6 +12,7 @@
 #include <exception>
 
 #include <essentia/algorithmfactory.h>
+#include <essentia/pool.h>
 #include<JuceHeader.h>
 
 #include "Grains.h"
@@ -253,3 +254,7 @@ class UnknownExtractorException : public std::exception
 };
 
 Feature getExtractorByString(String extractorName);
+
+std::unique_ptr<Array<Array<float>>> pcaReduce(
+    Array<Array<float>>& grains,
+    int nDims = 3);

@@ -39,6 +39,9 @@ public:
         Window::WindowType window = Window::Hann,
         int grainLength = 4096,
         int hopSize = 2048);
+    
+    std::unique_ptr<Array<Array<float>>> get3DGrainCoords();
+    Array<int> getMatchHistory();
 
     size_t getGrainLength();
 
@@ -49,6 +52,7 @@ private:
     bool startChainFromScratch = true;
     Array<float> lastFeatureMatch;
     Array<float> lastFeatureInput;
+    Array<int> matchHistory;
 
     size_t grainLength;
     bool analysed = false;

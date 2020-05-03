@@ -44,12 +44,6 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
 
     corpus_view->setBounds (300, 0, 500, 600);
 
-    drag_and_drop.reset (new FileDragAndDrop (std::move(fileFilter)));
-    addAndMakeVisible (drag_and_drop.get());
-    drag_and_drop->setName ("Drag And Drop");
-
-    drag_and_drop->setBounds (300, 0, 500, 600);
-
     feature_3.reset (new ComboBox ("Feature #3"));
     addAndMakeVisible (feature_3.get());
     feature_3->setEditableText (false);
@@ -224,6 +218,18 @@ MainGui::MainGui (AudioProcessorValueTreeState& v, std::unique_ptr<WildcardFileF
 
     label2->setBounds (136, 300, 128, 40);
 
+    grainView.reset (new GrainView());
+    addAndMakeVisible (grainView.get());
+    grainView->setName ("Grain View");
+
+    grainView->setBounds (300, 0, 500, 600);
+
+    drag_and_drop.reset (new FileDragAndDrop (std::move(fileFilter)));
+    addAndMakeVisible (drag_and_drop.get());
+    drag_and_drop->setName ("Drag And Drop");
+
+    drag_and_drop->setBounds (300, 0, 500, 600);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -290,7 +296,6 @@ MainGui::~MainGui()
 
     loading_bar = nullptr;
     corpus_view = nullptr;
-    drag_and_drop = nullptr;
     feature_3 = nullptr;
     feature_2 = nullptr;
     feature_1 = nullptr;
@@ -304,6 +309,8 @@ MainGui::~MainGui()
     hop_size = nullptr;
     matchGain = nullptr;
     label2 = nullptr;
+    grainView = nullptr;
+    drag_and_drop = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -562,6 +569,19 @@ void MainGui::stopLoading()
 {
     loading_bar->clearCallback();
 }
+
+void MainGui::startGrainAnimation(
+    std::unique_ptr<Array<Array<float>>> grains,
+    std::function<Array<int>()> matchCallback)
+{
+    grainView->setGrainCoords(std::move(grains));
+    grainView->setMatchCallback(matchCallback);
+}
+
+void MainGui::stopGrainAnimation()
+{
+    grainView->stopAnimation();
+}
 //[/MiscUserCode]
 
 
@@ -618,9 +638,6 @@ BEGIN_JUCER_METADATA
   <GENERICCOMPONENT name="Corpus View" id="4c3d175f513f862d" memberName="corpus_view"
                     virtualName="" explicitFocusOrder="0" pos="300 0 500 600" class="CorpusView"
                     params=""/>
-  <GENERICCOMPONENT name="Drag And Drop" id="4553fb37de056e3b" memberName="drag_and_drop"
-                    virtualName="" explicitFocusOrder="0" pos="300 0 500 600" class="FileDragAndDrop"
-                    params="std::move(fileFilter)"/>
   <COMBOBOX name="Feature #3" id="7795db765f687142" memberName="feature_3"
             virtualName="" explicitFocusOrder="0" pos="8 236 208 16" editable="0"
             layout="33" items="None&#10;Dissonance&#10;F0&#10;Inharmonicity&#10;MFCC&#10;Odd:even Harmonic Ratio&#10;Pitch Salience&#10;RMS&#10;Spectral Centroid&#10;Spectral Complexity&#10;Spectral Contrast&#10;Spectral Flatness&#10;Spectral Peaks&#10;Spectral Roll-off&#10;Strong Peak Ratio&#10;Zero Crossing Rate"
@@ -681,6 +698,12 @@ BEGIN_JUCER_METADATA
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Futura" fontsize="14.8" kerning="0.147" bold="0" italic="0"
          justification="34" typefaceStyle="Medium"/>
+  <GENERICCOMPONENT name="Grain View" id="11e7996b86a6f61d" memberName="grainView"
+                    virtualName="" explicitFocusOrder="0" pos="300 0 500 600" class="GrainView"
+                    params=""/>
+  <GENERICCOMPONENT name="Drag And Drop" id="4553fb37de056e3b" memberName="drag_and_drop"
+                    virtualName="" explicitFocusOrder="0" pos="300 0 500 600" class="FileDragAndDrop"
+                    params="std::move(fileFilter)"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

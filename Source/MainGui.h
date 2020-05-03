@@ -26,6 +26,7 @@
 
 #include "CorpusView.h"
 #include "FileDragAndDrop.h"
+#include "GrainView.h"
 #include "LoadingBar.h"
 //[/Headers]
 
@@ -56,6 +57,11 @@ public:
 
     void startLoading(std::function<float()> callback);
     void stopLoading();
+
+    void startGrainAnimation(
+        std::unique_ptr<Array<Array<float>>> grains,
+        std::function<Array<int>()> matchCallback);
+    void stopGrainAnimation();
     //[/UserMethods]
 
     void paint (Graphics& g) override;
@@ -88,7 +94,6 @@ private:
     //==============================================================================
     std::unique_ptr<LoadingBar> loading_bar;
     std::unique_ptr<CorpusView> corpus_view;
-    std::unique_ptr<FileDragAndDrop> drag_and_drop;
     std::unique_ptr<ComboBox> feature_3;
     std::unique_ptr<ComboBox> feature_2;
     std::unique_ptr<ComboBox> feature_1;
@@ -102,6 +107,8 @@ private:
     std::unique_ptr<Slider> hop_size;
     std::unique_ptr<ToggleButton> matchGain;
     std::unique_ptr<Label> label2;
+    std::unique_ptr<GrainView> grainView;
+    std::unique_ptr<FileDragAndDrop> drag_and_drop;
 
 
     //==============================================================================

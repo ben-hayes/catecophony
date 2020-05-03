@@ -475,3 +475,48 @@ Feature getExtractorByString(String extractorName)
     else
         throw new UnknownExtractorException();
 }
+
+std::unique_ptr<Array<Array<float>>> pcaReduce(
+    Array<Array<float>>& grains,
+    int nDims)
+{
+    es::AlgorithmFactory& af = es::AlgorithmFactory::instance();
+    auto pca = af.create(
+        "PCA",
+        "dimensions", nDims,
+        "namespaceIn", "pca.in",
+        "namespaceOut", "pca.out"
+    );
+
+    e::Pool pool;
+    for (auto& grain : grains)
+    {
+        std::vector<e::Real> realFeatures;
+        for (auto& feature : grain)
+        {
+            realFeatures.push_back(feature);
+        }
+
+        pool.add("pca.in", realFeatures);
+    }
+
+    pca->input("poolIn").set(pool);
+    pca->output("poolOut").set(pool);
+    pca->compute();
+
+    const std::vector<std::vector<e::Real>>& pcaOut =
+        pool.value<std::vector<std::vector<e::Real>>>("pca.out");
+    
+    auto out = std::make_unique<Array<Array<float>>>();
+    for (auto& grain : pcaOut)
+    {
+        Array<float> floatFeatures;
+        for (auto& feature : grain)
+        {
+            floatFeatures.add(feature);
+        }
+
+        out->add(floatFeatures);
+    }
+    return std::move(out);
+}

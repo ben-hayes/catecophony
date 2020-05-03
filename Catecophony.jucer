@@ -3,6 +3,8 @@
 <JUCERPROJECT id="GlT8KT" name="Catecophony" projectType="audioplug" jucerVersion="5.4.7">
   <MAINGROUP id="seWisY" name="Catecophony">
     <GROUP id="{58E357FA-602D-3C9B-78F5-7AD47BAA0F5C}" name="Source">
+      <FILE id="tU4zms" name="GrainView.cpp" compile="1" resource="0" file="Source/GrainView.cpp"/>
+      <FILE id="eRy9bj" name="GrainView.h" compile="0" resource="0" file="Source/GrainView.h"/>
       <FILE id="PXK1Lw" name="AnalysisWorker.cpp" compile="1" resource="0"
             file="Source/AnalysisWorker.cpp"/>
       <FILE id="FsH5po" name="AnalysisWorker.h" compile="0" resource="0"

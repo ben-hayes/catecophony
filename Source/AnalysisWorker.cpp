@@ -46,7 +46,10 @@ AnalysisWorker::AnalysisWorker(
     formatManager.registerBasicFormats();
 }
 
-AnalysisWorker::~AnalysisWorker() {}
+AnalysisWorker::~AnalysisWorker()
+{
+    stopThread(2000);
+}
 
 void AnalysisWorker::run()
 {

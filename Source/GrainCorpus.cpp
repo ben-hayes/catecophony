@@ -46,6 +46,7 @@ Grain* GrainCorpus::findNearestGrain(Array<float>& featuresToCompare)
 {
     auto shortestDistance = 0.0f;
     Grain* nearestGrain;
+    auto matchedIndex = 0;
 
     for (int i = 0; i < features.size(); i++)
     {
@@ -54,9 +55,11 @@ Grain* GrainCorpus::findNearestGrain(Array<float>& featuresToCompare)
         {
             shortestDistance = distance;
             nearestGrain = grains[i];
+            matchedIndex = i;
         }
         
     }
+    matchHistory.add(matchedIndex);
     return nearestGrain;
 }
 
@@ -109,6 +112,19 @@ void GrainCorpus::analyse(
     }
 
     analysed = true;
+}
+
+std::unique_ptr<Array<Array<float>>> GrainCorpus::get3DGrainCoords()
+{
+    auto pcaGrains = pcaReduce(features);
+    return std::move(pcaGrains);
+}
+
+Array<int> GrainCorpus::getMatchHistory()
+{
+    auto mh = matchHistory;
+    matchHistory.clear();
+    return mh;
 }
 
 size_t GrainCorpus::getGrainLength()

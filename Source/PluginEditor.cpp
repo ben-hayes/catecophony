@@ -83,11 +83,17 @@ void CatecophonyAudioProcessorEditor::initialiseCorpusFromFilenames(
             hopSize,
             features,
             [this](){
+                gui->startGrainAnimation(
+                    processor.getCorpus()->get3DGrainCoords(),
+                    [this](){
+                        return processor.getCorpus()->getMatchHistory();
+                    });
                 gui->stopLoading();
             }));
     gui->startLoading([this](){
         return worker->getProgress();
     });
+    gui->stopGrainAnimation();
     worker->startThread(2);
 }
 
@@ -104,11 +110,17 @@ void CatecophonyAudioProcessorEditor::analyseCorpus()
             hopSize,
             features,
             [this](){
+                gui->startGrainAnimation(
+                    processor.getCorpus()->get3DGrainCoords(),
+                    [this](){
+                        return processor.getCorpus()->getMatchHistory();
+                    });
                 gui->stopLoading();
             }));
     gui->startLoading([this](){
         return worker->getProgress();
     });
+    gui->stopGrainAnimation();
     worker->startThread(2);
 }
 
