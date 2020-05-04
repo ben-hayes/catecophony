@@ -156,7 +156,7 @@ private:
     {
         Array<int> abovePointIndices;
         for (
-            int i = pointIndices.size() / 2.0f;
+            int i = ceilf(pointIndices.size() / 2.0f);
             i < pointIndices.size();
             i++)
         {
