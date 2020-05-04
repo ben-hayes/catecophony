@@ -101,6 +101,17 @@ Grain::Grain(
     : buffer(std::move(audioBuffer)),
       monoBuffer(std::make_unique<AudioBuffer<float>>())
 {
+    if (buffer->getNumChannels() != 2)
+    {
+        float** newRawBuffer = new float*[2];
+        newRawBuffer[0] = buffer->getWritePointer(0);
+        newRawBuffer[1] = buffer->getWritePointer(0);
+        auto newBuffer = std::make_unique<AudioBuffer<float>>(
+            newRawBuffer,
+            2,
+            buffer->getNumSamples());
+        buffer = std::move(newBuffer);
+    }
     applyWindow(windowType);
     setMagnitude();
     makeMonoBuffer();
