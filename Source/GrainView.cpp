@@ -201,11 +201,9 @@ Point3D GrainView::rotateAndProjectPoint(float x, float y, float z, float theta)
     auto rotZ = - sinTheta * X + cosTheta * Z;
 
     auto zBase = 3.0f - rotZ;
-    if (zBase < 0.0f) zBase = 0.0f;
-    auto phiX = atan2f(rotX, zBase);
-    auto phiY = atan2f(rotY, zBase);
-    auto projX = 1.5 * tanf(phiX);
-    auto projY = 1.5 * tanf(phiY);
+    if (zBase <= 0.0f) zBase = 0.000000001f;
+    auto projX = 1.5 * rotX / zBase;
+    auto projY = 1.5 * rotY / zBase;
 
     out.x = projX;
     out.y = projY;

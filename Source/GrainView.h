@@ -30,7 +30,7 @@ class GrainView    : public Component,
                      public Timer
 {
 public:
-    GrainView(int maxGrainsToShow = 1750);
+    GrainView(int maxGrainsToShow = 2150);
     ~GrainView();
 
     void paint (Graphics&) override;
