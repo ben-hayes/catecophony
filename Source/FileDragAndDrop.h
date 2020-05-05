@@ -1,10 +1,9 @@
 /*
   ==============================================================================
-
+    Ben Hayes
+    ECS730P - Digital Audio Effects
     FileDragAndDrop.h
-    Created: 27 Apr 2020 4:28:32pm
-    Author:  Ben Hayes
-
+    Description: Header file for a simple drag/drop file component.
   ==============================================================================
 */
 

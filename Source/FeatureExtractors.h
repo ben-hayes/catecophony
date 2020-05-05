@@ -1,10 +1,9 @@
 /*
   ==============================================================================
-
+    Ben Hayes
+    ECS730P - Digital Audio Effects
     FeatureExtractors.h
-    Created: 28 Apr 2020 1:30:37pm
-    Author:  Ben Hayes
-
+    Description: Header for feature extractors. Uses Essentia
   ==============================================================================
 */
 

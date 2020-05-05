@@ -1,10 +1,9 @@
 /*
   ==============================================================================
-
+    Ben Hayes
+    ECS730P - Digital Audio Effects
     FileDragAndDrop.cpp
-    Created: 27 Apr 2020 4:28:32pm
-    Author:  Ben Hayes
-
+    Description: Drag and drop implementation
   ==============================================================================
 */
 
@@ -30,6 +29,7 @@ void FileDragAndDrop::setCallback(
 
 void FileDragAndDrop::paint (Graphics& g)
 {
+    // Highlight the interface if we're hovering a file
     if (filesHovering)
     {
         g.fillAll(Colour(
@@ -50,6 +50,7 @@ void FileDragAndDrop::resized()
 bool FileDragAndDrop::isInterestedInFileDrag(
     const StringArray& files)
 {
+    // Only report that we're interested if we have a format reader for the file
     for (auto file : files)
     {
         if (!fileFilter->isFileSuitable(file))
@@ -93,5 +94,6 @@ void FileDragAndDrop::filesDropped(
 
     if(!callbackSet) return;
 
+    // pass the list of files to our callback
     callback(files);
 }

@@ -1,10 +1,9 @@
 /*
   ==============================================================================
-
+    Ben Hayes
+    ECS730P - Digital Audio Effects
     AnalysisWorker.h
-    Created: 1 May 2020 6:04:15pm
-    Author:  Ben Hayes
-
+    Description: Worker thread for analysing corpus - header
   ==============================================================================
 */
 

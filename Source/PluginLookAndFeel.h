@@ -1,10 +1,10 @@
 /*
   ==============================================================================
-
+    Ben Hayes
+    ECS730P - Digital Audio Effects
     PluginLookAndFeel.h
-    Created: 27 Apr 2020 2:51:20pm
-    Author:  Ben Hayes
-
+    Description: Header file for look and feel subclass. Used to style some
+      aspects of the plugin.
   ==============================================================================
 */
 

@@ -1,10 +1,9 @@
 /*
   ==============================================================================
-
+    Ben Hayes
+    ECS730P - Digital Audio Effects
     GrainCorpus.h
-    Created: 28 Apr 2020 11:38:36am
-    Author:  Ben Hayes
-
+    Description: Header file for Grain Corpus - the heart of Catecophony
   ==============================================================================
 */
 

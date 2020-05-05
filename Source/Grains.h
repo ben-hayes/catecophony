@@ -1,10 +1,9 @@
 /*
   ==============================================================================
-
+    Ben Hayes
+    ECS730P - Digital Audio Effects
     Grains.h
-    Created: 28 Apr 2020 11:46:13am
-    Author:  Ben Hayes
-
+    Description: Header file for helpful grain classes
   ==============================================================================
 */
 

@@ -1,10 +1,9 @@
 /*
   ==============================================================================
-
-    This file was auto-generated!
-
-    It contains the basic framework code for a JUCE plugin processor.
-
+    Ben Hayes
+    ECS730P - Digital Audio Effects
+    PluginProcessor.cpp
+    Description: Implementation file for Catecophony's JUCE plugin processor
   ==============================================================================
 */
 
@@ -219,31 +218,45 @@ void CatecophonyAudioProcessor::processBlock (
     AudioBuffer<float>& buffer,
     MidiBuffer& midiMessages)
 {
+    // Auto generated JUCE boilerplate for preventing extra channel nastiness:
     ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
+
+    // If we're not ready to process, just return. JUCE will just pass the
+    // audio through untouched.
     if (state != ProcessorState::Ready) return;
 
+    // Lock the buffers
     bufState = BufferState::InUse;
+
+    // If we've changed the filter control
     if (*lpfCutoff != lastCutoff)
     {
+        // Make a new set of Butterworth coefficients and store them in the
+        // filter
         auto coeffs = IIRCoefficients::makeLowPass(
             getSampleRate(),
             getSampleRate() * 0.5f * *lpfCutoff);
-        lpf.setCoefficients(coeffs);
+        lpf[0].setCoefficients(coeffs);
+        lpf[1].setCoefficients(coeffs);
         lastCutoff = *lpfCutoff;
     }
+
+    // Now for our main processing loop
     for (int n = 0; n < buffer.getNumSamples(); n++)
     {
+        // First we populate our input circular buffer with the samples
         for (int channel = 0; channel < totalNumInputChannels; channel++)
         {
             grainBuffer[channel][grainBufferWritePointer] =
                 buffer.getSample(channel, n);
         }
 
+        // Then move the write pointer round the buffer, wrapping if necessary
         grainBufferWritePointer += 1;
         if (grainBufferWritePointer >= grainSize)
         {
@@ -253,25 +266,34 @@ void CatecophonyAudioProcessor::processBlock (
         hopCounter += 1;
         if (hopCounter >= hopSize)
         {
+            // If we have enough for a new grain ...
             hopCounter = 0;
             for (int i = 0; i < grainSize; i++)
             {
                 for (int c = 0; c < 2; c++)
                 {
+                    // Copy the grain to our working grain buffer
                     nextGrain[c][i] = grainBuffer[c][
                         (grainBufferWritePointer + i) % grainSize];
                 }
             }
 
+            // And initialise our instance of the Grain class
             workingGrain.init(nextGrain, 2, grainSize, window);
 
+            // No point wasting energy on the next bit if the grain is silent
             if (!workingGrain.isSilent())
             {
+                // get parameter values from value tree
                 auto matchGain = dynamic_cast<AudioParameterBool*>(
                     params.getParameter("matchGain"))->get();
                 auto relativeMatching = dynamic_cast<AudioParameterBool*>(
                     params.getParameter("relativeMatching"))->get();
+
+                // extract features from input grain
                 auto features = featureExtractorChain->process(&workingGrain);
+                // and find the nearest matching grain, using the method set
+                // by the user
                 auto* nearestGrain = relativeMatching
                     ? corpus->findNearestStep(features, *temperature)
                     : corpus->findNearestGrain(features, *temperature);
@@ -284,6 +306,7 @@ void CatecophonyAudioProcessor::processBlock (
                 {
                     for (int c = 0; c < 2; c++)
                     {
+                        // Now overlap-add it to the output circular buffer
                         outputBuffer[c][(outputBufferWritePointer + i)
                                         % (grainSize + hopSize)]
                             += rawGrainBuffer[c][i] * gainScale;
@@ -291,9 +314,12 @@ void CatecophonyAudioProcessor::processBlock (
                 }
             } else
             {
+                // If we've got a zero sample, it's a good opportunity to reset
+                // our path matching
                 corpus->resetStepChain();
             }
 
+            // Increment the write pointer, a hop at a time (so we overlap)
             outputBufferWritePointer += hopSize;
             if (outputBufferWritePointer >= grainSize + hopSize)
             {
@@ -302,11 +328,12 @@ void CatecophonyAudioProcessor::processBlock (
             }
         }
 
+        // Now our output loop -- fairly self explanatory
         for (int channel = 0; channel < totalNumInputChannels; channel++)
         {
             auto inSample = buffer.getSample(channel, n);
             auto wetSample = *lpfCutoff != 1.0f
-                ? lpf.processSingleSampleRaw(
+                ? lpf[channel].processSingleSampleRaw(
                     outputBuffer[channel][outputBufferReadPointer])
                 : outputBuffer[channel][outputBufferReadPointer];
             auto out = *dryWet * wetSample + (1.0f - *dryWet) * inSample;
@@ -314,6 +341,8 @@ void CatecophonyAudioProcessor::processBlock (
                 channel,
                 n,
                 out);
+            // This is important though -- we zero the output buffer after
+            // reading from it:
             outputBuffer[channel][outputBufferReadPointer] = 0.0f;
         }
 
@@ -323,6 +352,7 @@ void CatecophonyAudioProcessor::processBlock (
             outputBufferReadPointer = 0;
         }
     }
+    // Clear the lock
     bufState = BufferState::NotInUse;
 }
 
@@ -340,19 +370,20 @@ AudioProcessorEditor* CatecophonyAudioProcessor::createEditor()
 //==============================================================================
 void CatecophonyAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
+    // Store plugin state using a value tree
     ValueTree totalState("CatecophonyState");
     auto paramState = params.copyState();
     totalState.appendChild(paramState, nullptr);
     totalState.appendChild(corpusFiles, nullptr);
     std::unique_ptr<XmlElement> stateXml(totalState.createXml());
     copyXmlToBinary(*stateXml, destData);
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
 }
 
 void CatecophonyAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
+    // Restore plugin state from a value tree. Currently only filenames are
+    // stored in the value tree, so the corpus needs to be re-calculated each
+    // load. Hope to fix this in future.
     std::unique_ptr<XmlElement> totalStateXml(
         getXmlFromBinary(data, sizeInBytes));
     
@@ -370,8 +401,6 @@ void CatecophonyAudioProcessor::setStateInformation (const void* data, int sizeI
             nullptr);
         reloadCorpusFromValueTree();
     }
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
 }
 //==============================================================================
 
@@ -467,6 +496,8 @@ float CatecophonyAudioProcessor::getWorkerProgress()
 
 void CatecophonyAudioProcessor::initialiseBuffers()
 {
+    // Dynamically allocate and zero buffers to prevent weird uninitialised
+    // memory issues
     grainBuffer = new float*[2];
     for (int c = 0; c < 2; c++)
     {

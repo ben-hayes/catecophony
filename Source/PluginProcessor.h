@@ -1,10 +1,9 @@
 /*
   ==============================================================================
-
-    This file was auto-generated!
-
-    It contains the basic framework code for a JUCE plugin processor.
-
+    Ben Hayes
+    ECS730P - Digital Audio Effects
+    PluginProcessor.h
+    Description: Header file for Catecophony's JUCE plugin processor
   ==============================================================================
 */
 
@@ -17,7 +16,10 @@
 #include "Grains.h"
 #include "GrainCorpus.h"
 
-class AnalysisWorker;
+class AnalysisWorker; //Forward declaration due to circular dependency
+
+// Useful enumerations for managing processor state and preventing thread
+// clashes
 enum class ProcessorState
 {
     NoCorpus = 0,
@@ -80,6 +82,7 @@ public:
     void setGrainAndHopSize(size_t grainSize, size_t hopSize);
     void setWindow(Window::WindowType window);
 
+    // getters and setters
     ProcessorState getState();
     BufferState getBufferState();
 
@@ -90,6 +93,7 @@ public:
     void setFeatureExtractorChain(std::unique_ptr<FeatureExtractorChain>);
     FeatureExtractorChain* getFeatureExtractorChain();
 
+    // trigger a worker thread to load a corpus
     void initialiseCorpusFromFilenames(
         const StringArray& files,
         std::function<void()> finishedCallback);
@@ -124,7 +128,7 @@ private:
 
     int grainBufferWritePointer;
 
-    IIRFilter lpf;
+    IIRFilter lpf[2];
     float lastCutoff = 0.0f;
 
     std::unique_ptr<GrainCorpus> corpus;

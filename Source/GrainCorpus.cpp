@@ -1,10 +1,9 @@
 /*
   ==============================================================================
-
+    Ben Hayes
+    ECS730P - Digital Audio Effects
     GrainCorpus.cpp
-    Created: 28 Apr 2020 11:38:36am
-    Author:  Ben Hayes
-
+    Description: Implementation file for Grain Corpus
   ==============================================================================
 */
 
@@ -18,6 +17,8 @@ GrainCorpus::GrainCorpus(
     : grainLength(grainLength),
       normalDist(0.0f, 1.0f)
 {
+    // Constructs a grain corpus with the given parameters from a list of
+    // AudioFormatReaders
     for (auto& reader : readers)
     {
         auto numGrains = 1 + static_cast<int>(
@@ -48,10 +49,8 @@ Grain* GrainCorpus::findNearestGrain(
     Array<float>& featuresToCompare,
     float temperature)
 {
-    auto shortestDistance = 0.0f;
-    Grain* nearestGrain;
-    auto matchedIndex = 0;
-
+    // shift and scale the input features, and apply some temperature to the
+    // sampling
     Array<float> tempFeatures;
     for (int i = 0; i < featuresToCompare.size(); i++)
     {
@@ -61,7 +60,9 @@ Grain* GrainCorpus::findNearestGrain(
         tempFeatures.add(shiftScale + eps);
     }
 
+    // find the nearest grain using the search tree
     auto nearestIndex = searchTree->getNearestPoint(tempFeatures);
+    lastFeatureMatch = features[nearestIndex];
     matchHistory.add(nearestIndex);
     return grains[nearestIndex];
 }
@@ -70,12 +71,19 @@ Grain* GrainCorpus::findNearestStep(
     Array<float>& featuresToCompare,
     float temperature)
 {
+    // Remembers the last matched feature point and takes the equivalent step
+    // from there
+
+    // If we're starting again (which we often are)
     if (startChainFromScratch)
     {
+        // just find the regular old match
         startChainFromScratch = false;
         return findNearestGrain(featuresToCompare, temperature);
     }
 
+    // but otherwise, create a fictional point that mirrors the desired step
+    // and make the match from there
     Array<float> imaginaryFeatures;
     for (int i = 0; i < featuresToCompare.size(); i++)
     {
@@ -97,6 +105,8 @@ void GrainCorpus::analyse(
     FeatureExtractorChain* featureExtractors,
     std::function<void(float)> progressCallback)
 {
+    // Given a chain of feature extractors, analyse all the grains in the
+    // corpus and store the results internally
     features.clear();
 
     auto i = 0;

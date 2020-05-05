@@ -90,11 +90,11 @@ jucer_project_begin(
 
 jucer_project_settings(
   PROJECT_NAME "Catecophony"
-  PROJECT_VERSION "1.0.0"
+  PROJECT_VERSION "0.0.1"
   REPORT_JUCE_APP_USAGE ON # Required for closed source applications without an Indie or Pro JUCE license
   DISPLAY_THE_JUCE_SPLASH_SCREEN ON # Required for closed source applications without an Indie or Pro JUCE license
   PROJECT_TYPE "Audio Plug-in"
-  BUNDLE_IDENTIFIER "com.yourcompany.Catecophony"
+  BUNDLE_IDENTIFIER "com.BenHayes.Catecophony"
   CXX_LANGUAGE_STANDARD "C++14"
   HEADER_SEARCH_PATHS "/usr/local/include"
 )
@@ -107,11 +107,11 @@ jucer_audio_plugin_settings(
   # PLUGIN_CHARACTERISTICS
   PLUGIN_NAME "Catecophony"
   PLUGIN_DESCRIPTION "Catecophony"
-  PLUGIN_MANUFACTURER "yourcompany"
+  PLUGIN_MANUFACTURER "Ben Hayes"
   PLUGIN_MANUFACTURER_CODE "Manu"
   PLUGIN_CODE "Glt8"
   # PLUGIN_CHANNEL_CONFIGURATIONS
-  PLUGIN_AAX_IDENTIFIER "com.yourcompany.Catecophony"
+  PLUGIN_AAX_IDENTIFIER "com.BenHayes.Catecophony"
   PLUGIN_AU_EXPORT_PREFIX "CatecophonyAU"
   PLUGIN_AU_MAIN_TYPE "kAudioUnitType_Effect"
   PLUGIN_VST3_CATEGORY

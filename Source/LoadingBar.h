@@ -1,10 +1,9 @@
 /*
   ==============================================================================
-
+    Ben Hayes
+    ECS730P - Digital Audio Effects
     LoadingBar.h
-    Created: 1 May 2020 6:47:50pm
-    Author:  Ben Hayes
-
+    Description: A simple loading bar component
   ==============================================================================
 */
 
@@ -22,9 +21,6 @@ class LoadingBar    : public Component,
 public:
     LoadingBar()
     {
-        // In your constructor, you should add any child components, and
-        // initialise any special settings that your component needs.
-
     }
 
     ~LoadingBar()
@@ -33,6 +29,7 @@ public:
 
     void paint (Graphics& g) override
     {
+        // Stop if we don't have anyone to ask about progress
         if (!hasCallback) 
         {
             stopTimer();
@@ -40,12 +37,15 @@ public:
         }
 
         auto progress = getProgress();
+        // And stop if we're finished
         if (progress < 0.0f)
         {
             clearCallback();
             return;
         }
 
+        // Otherwise, simply draw the rectangle and fill it the appropriate
+        // amount
         auto loadingBarBounds = getLocalBounds().withSizeKeepingCentre(160, 40);
         g.setColour(Colour((0xa0 << 24) | (0xff << 16) | (0xff << 8) | (0xff)));
         g.drawRect(loadingBarBounds);
@@ -54,9 +54,6 @@ public:
 
     void resized() override
     {
-        // This method is where you should set the bounds of any child
-        // components that your component contains..
-
     }
 
     void setPaintCallback(std::function<float()> callback)
@@ -73,6 +70,7 @@ public:
 
     void timerCallback() override
     {
+        // Animate
         repaint();
     }
 

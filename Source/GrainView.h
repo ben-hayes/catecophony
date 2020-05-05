@@ -1,10 +1,9 @@
 /*
   ==============================================================================
-
+    Ben Hayes
+    ECS730P - Digital Audio Effects
     GrainView.h
-    Created: 2 May 2020 2:22:37pm
-    Author:  Ben Hayes
-
+    Description: Header file for the rotating 3D grain view
   ==============================================================================
 */
 

@@ -1,10 +1,10 @@
 /*
   ==============================================================================
-
+    Ben Hayes
+    ECS730P - Digital Audio Effects
     KDSearchTree.h
-    Created: 3 May 2020 9:32:05pm
-    Author:  Ben Hayes
-
+    Description: The data structure used to implement the nearest neighbour
+        search efficiently
   ==============================================================================
 */
 
@@ -14,10 +14,13 @@
 class KDSearchTree
 {
 public:
+    // Public facing constructor
     KDSearchTree(const Array<Array<float>>& points, int startAxis = 0)
         : points(points)
     {
         Array<int> pointIndices;
+        // create an ordered list of indices. This will be passed down and
+        // diced up throughout the tree
         for (int i = 0; i < points.size(); i++) pointIndices.add(i);
         createTreeNode(points, pointIndices, startAxis);
     }
@@ -33,6 +36,7 @@ public:
 
     int getNearestPoint(Array<float>& pointToMatch)
     {
+        // recursive search for the best matching point
         if (terminalNode) return pointIndex;
 
         if (pointToMatch[splitAxis] <= median)
@@ -56,6 +60,8 @@ private:
     bool terminalNode = false;
     int pointIndex = -1;
 
+    // JUCE's array sort allows a comparator object to be passed in. Making it
+    // stateful allows us to avoid copying the whole points array.
     struct Comparator {
         Comparator(const Array<Array<float>>& points, int axis)
             : axis(axis),
@@ -77,6 +83,7 @@ private:
         Array<int> pointIndices,
         int axis)
     {
+        // If we're at the bottom of a tree, we don't need any more subnodes
         if (pointIndices.size() == 1)
         {
             terminalNode = true;
@@ -86,6 +93,7 @@ private:
 
         splitAxis = axis;
 
+        // otherwise, find the middle, and create two trees either side
         auto axisMedian = getAxisMedian(points, pointIndices, axis);
         median = axisMedian;
 
@@ -100,6 +108,7 @@ private:
             axis,
             axisMedian);
         
+        // and do so recursively
         left = std::make_unique<KDSearchTree>(
             points,
             belowPointIndices,

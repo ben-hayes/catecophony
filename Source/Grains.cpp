@@ -1,10 +1,9 @@
 /*
   ==============================================================================
-
+    Ben Hayes
+    ECS730P - Digital Audio Effects
     Grains.cpp
-    Created: 28 Apr 2020 11:46:13am
-    Author:  Ben Hayes
-
+    Description: Implementation for Grains and windowing
   ==============================================================================
 */
 
@@ -101,6 +100,9 @@ Grain::Grain(
     : buffer(std::move(audioBuffer)),
       monoBuffer(std::make_unique<AudioBuffer<float>>())
 {
+    // This is necessary to stop non-stereo corpus files crashing the plugin
+    // -- it's a dummy fix until I can properly implement dynamic channel
+    // allocation
     if (buffer->getNumChannels() != 2)
     {
         auto newBuffer = std::make_unique<AudioBuffer<float>>(
@@ -121,6 +123,7 @@ void Grain::init(
     int lengthInSamples,
     Window::WindowType windowType)
 {
+    // Static initialisation method
     buffer->setDataToReferTo(data, numChannels, lengthInSamples);
     setMagnitude();
     applyWindow(windowType);

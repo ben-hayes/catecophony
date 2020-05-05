@@ -1,10 +1,10 @@
 /*
   ==============================================================================
-
-    This file was auto-generated!
-
-    It contains the basic framework code for a JUCE plugin editor.
-
+    Ben Hayes
+    ECS730P - Digital Audio Effects
+    PluginEditor.h
+    Description: Header file for plugin editor. Pulls together GUI components
+      and links to processor.
   ==============================================================================
 */
 

@@ -1,16 +1,20 @@
 /*
   ==============================================================================
-
+    Ben Hayes
+    ECS730P - Digital Audio Effects
     FeatureExtractors.cpp
-    Created: 28 Apr 2020 1:30:37pm
-    Author:  Ben Hayes
-
+    Description: Feature extractor implementation. Mostly Essentia wrappers
   ==============================================================================
 */
 #include "FeatureExtractors.h"
 
+// Stop us from re-initialising the Essentia factory unnecessarily
 bool FactoryInitialiser::alreadyInitialised = false;
 
+// In general this file contains a lot of wrapper code around the Essentia
+// library -- the concept is basically the same throughout -- to provide a 
+// JUCE compatible interface to allow banks of Essentia feature extractors to
+// be used.
 FeatureExtractorChain::FeatureExtractorChain(size_t grainSize)
     : grainSize(grainSize),
       fftExtractor(grainSize)
